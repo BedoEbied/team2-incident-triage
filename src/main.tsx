@@ -8,13 +8,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Dashboard } from './pages/Dashboard';
-import { theme } from './theme/theme';
+import { cssVariablesResolver, theme } from './theme/theme';
 
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <MantineProvider defaultColorScheme="light" theme={theme}>
+    <MantineProvider
+      cssVariablesResolver={cssVariablesResolver}
+      defaultColorScheme="light"
+      theme={theme}
+    >
       <QueryClientProvider client={queryClient}>
         <Dashboard />
       </QueryClientProvider>
