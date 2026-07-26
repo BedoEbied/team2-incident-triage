@@ -13,12 +13,6 @@ const expected: [string, number][] = [
 
 export async function seed(repo: IncidentRepo, parser: LogParser, analyzer: Analyzer): Promise<void> {
   await repo.seedUser('oncall@demo.io', 'demo1234', 'On-Call Engineer');
-  if (!(await repo.isEmpty())) {
-    const stats = await repo.stats();
-    const entries = stats.trend.reduce((sum, point) => sum + point.count, 0);
-    console.log(`Seeded ${entries} entries, ${stats.total} incidents`);
-    return;
-  }
   const all = [];
   for (const [file, count] of expected) {
     const entries = await parser.parseFile(join('fixtures/logs', file));
@@ -33,5 +27,5 @@ export async function seed(repo: IncidentRepo, parser: LogParser, analyzer: Anal
   assert.equal(all[0]!.timestamp.slice(0, 10), '2026-04-23');
   assert.equal([...all].sort((a, b) => a.timestamp.localeCompare(b.timestamp)).at(-1)!.timestamp.slice(0, 10), '2026-05-20');
   await repo.ingest(basename('seed.log'), groups, analyzer);
-  console.log(`Seeded ${all.length} entries, ${groups.length} incidents`);
+  console.log(`Seeded ${all.length} entries, ${groups.length} incidents, largest incident ${groups[0]!.occurrences}`);
 }
