@@ -22,7 +22,7 @@ import {
 } from './incidentQuery';
 
 export const API_BASE = 'http://localhost:4000/api';
-export const USE_MOCK = false;
+export const USE_MOCK = true;
 
 const TOKEN = mock.token;
 const STATUS_KEY = 'triage-web.mock.statuses';
