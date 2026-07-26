@@ -116,21 +116,23 @@ export function createSqliteRepo(db: Db): IncidentRepo {
     async updateIncident(id, patch, actor) {
       const before = await this.detail(id);
       if (!before) return null;
-      if (patch.status !== undefined) {
-        db.prepare('UPDATE incident SET status = ? WHERE id = ?').run(patch.status, id);
-        db.prepare('INSERT INTO activity (id, incident_id, at, actor, type, from_value, to_value) VALUES (?, ?, ?, ?, ?, ?, ?)')
-          .run(randomUUID(), id, nowIso(), actor, 'status', before.status, patch.status);
-      }
-      if (patch.assigneeId !== undefined) {
-        db.prepare('UPDATE incident SET assignee_id = ? WHERE id = ?').run(patch.assigneeId, id);
-        db.prepare('INSERT INTO activity (id, incident_id, at, actor, type, from_value, to_value) VALUES (?, ?, ?, ?, ?, ?, ?)')
-          .run(randomUUID(), id, nowIso(), actor, 'assign', before.assignee?.id ?? null, patch.assigneeId);
-      }
-      if (patch.acknowledged !== undefined) {
-        db.prepare('UPDATE incident SET acknowledged = ? WHERE id = ?').run(patch.acknowledged ? 1 : 0, id);
-        db.prepare('INSERT INTO activity (id, incident_id, at, actor, type, from_value, to_value) VALUES (?, ?, ?, ?, ?, ?, ?)')
-          .run(randomUUID(), id, nowIso(), actor, 'ack', String(before.acknowledged), String(patch.acknowledged));
-      }
+      db.transaction(() => {
+        if (patch.status !== undefined && patch.status !== before.status) {
+          db.prepare('UPDATE incident SET status = ? WHERE id = ?').run(patch.status, id);
+          db.prepare('INSERT INTO activity (id, incident_id, at, actor, type, from_value, to_value) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .run(randomUUID(), id, nowIso(), actor, 'status', before.status, patch.status);
+        }
+        if (patch.assigneeId !== undefined && patch.assigneeId !== (before.assignee?.id ?? null)) {
+          db.prepare('UPDATE incident SET assignee_id = ? WHERE id = ?').run(patch.assigneeId, id);
+          db.prepare('INSERT INTO activity (id, incident_id, at, actor, type, from_value, to_value) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .run(randomUUID(), id, nowIso(), actor, 'assign', before.assignee?.id ?? null, patch.assigneeId);
+        }
+        if (patch.acknowledged !== undefined && patch.acknowledged !== before.acknowledged) {
+          db.prepare('UPDATE incident SET acknowledged = ? WHERE id = ?').run(patch.acknowledged ? 1 : 0, id);
+          db.prepare('INSERT INTO activity (id, incident_id, at, actor, type, from_value, to_value) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .run(randomUUID(), id, nowIso(), actor, 'ack', String(before.acknowledged), String(patch.acknowledged));
+        }
+      })();
       return (await this.detail(id))!;
     },
     async addNote(id, body, actor) {

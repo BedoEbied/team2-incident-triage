@@ -18,7 +18,6 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   if (isPublicError(err)) {
     return sendError(res, err.httpStatus, err.apiCode, err.publicMessage);
   }
-  console.error(err);
   sendError(res, 500, 'INTERNAL', 'Internal server error');
 }
 

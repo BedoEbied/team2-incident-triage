@@ -47,8 +47,12 @@ export function registerRoutes(
 
   api.get('/health', (_req, res) => res.json({ ok: true }));
   api.post('/auth/login', asyncRoute(async (req, res) => {
-    const { email, password } = req.body as { email?: string; password?: string };
-    if (!email || !password) return sendError(res, 400, 'VALIDATION_ERROR', 'Email and password are required');
+    const body = objectBody(req.body);
+    const email = body?.email;
+    const password = body?.password;
+    if (typeof email !== 'string' || !email.trim() || typeof password !== 'string' || !password) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Email and password are required');
+    }
     const result = await deps.auth.login(email, password);
     if (!result) return sendError(res, 401, 'UNAUTHORIZED', 'Invalid credentials');
     res.json(result);
@@ -66,8 +70,10 @@ export function registerRoutes(
     const files = (req.files ?? []) as Express.Multer.File[];
     if (!files.length) return sendError(res, 400, 'VALIDATION_ERROR', 'At least one files field is required');
     const jobId = randomUUID();
-    await deps.repo.saveJob({ jobId, status: 'queued', progress: 0, parsed: 0, grouped: 0, error: null });
+    let jobCreated = false;
     try {
+      await deps.repo.saveJob({ jobId, status: 'queued', progress: 0, parsed: 0, grouped: 0, error: null });
+      jobCreated = true;
       await deps.repo.saveJob({ jobId, status: 'parsing', progress: 5, parsed: 0, grouped: 0, error: null });
       const result = await deps.ingest.ingestFiles(
         jobId,
@@ -92,14 +98,16 @@ export function registerRoutes(
       res.json({ jobId });
     } catch (error) {
       const message = isPublicError(error) ? error.publicMessage : 'Upload failed';
-      await deps.repo.saveJob({
-        jobId,
-        status: 'failed',
-        progress: 100,
-        parsed: 0,
-        grouped: 0,
-        error: message,
-      });
+      if (jobCreated) {
+        await deps.repo.saveJob({
+          jobId,
+          status: 'failed',
+          progress: 100,
+          parsed: 0,
+          grouped: 0,
+          error: message,
+        });
+      }
       throw error;
     } finally {
       await cleanupFiles(files);
@@ -119,15 +127,47 @@ export function registerRoutes(
     res.json(detail);
   }));
   api.patch('/incidents/:id', asyncRoute(async (req: AuthedRequest, res) => {
-    const body = req.body as { status?: Status; assigneeId?: string | null; acknowledged?: boolean };
-    if (body.status !== undefined && !STATUSES.includes(body.status)) return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid status');
-    const updated = await deps.incidents.update(req.params.id, body, req.userId!);
+    const body = objectBody(req.body);
+    const allowed = ['status', 'assigneeId', 'acknowledged'];
+    const keys = body ? Object.keys(body) : [];
+    if (!body || keys.length === 0 || keys.some((key) => !allowed.includes(key))) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'PATCH body must contain supported fields');
+    }
+    if (body.status !== undefined && (
+      typeof body.status !== 'string'
+      || !STATUSES.includes(body.status as Status)
+    )) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid status');
+    }
+    if (body.assigneeId !== undefined && body.assigneeId !== null && (
+      typeof body.assigneeId !== 'string'
+      || !body.assigneeId.trim()
+    )) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid assigneeId');
+    }
+    if (body.acknowledged !== undefined && typeof body.acknowledged !== 'boolean') {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid acknowledged value');
+    }
+    if (typeof body.assigneeId === 'string' && !(await deps.repo.findUserById(body.assigneeId))) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid assigneeId');
+    }
+    const patch: { status?: Status; assigneeId?: string | null; acknowledged?: boolean } = {};
+    if (body.status !== undefined) patch.status = body.status as Status;
+    if (body.assigneeId !== undefined) patch.assigneeId = body.assigneeId as string | null;
+    if (body.acknowledged !== undefined) patch.acknowledged = body.acknowledged as boolean;
+    const updated = await deps.incidents.update(req.params.id, patch, req.userId!);
     if (!updated) return sendError(res, 404, 'NOT_FOUND', 'Incident not found');
     res.json(updated);
   }));
   api.post('/incidents/:id/notes', asyncRoute(async (req: AuthedRequest, res) => {
-    const { body } = req.body as { body?: string };
-    if (!body) return sendError(res, 400, 'VALIDATION_ERROR', 'Note body is required');
+    const input = objectBody(req.body);
+    if (!input || Object.keys(input).length !== 1 || typeof input.body !== 'string') {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Note body is required');
+    }
+    const body = input.body.trim();
+    if (!body || body.length > 10_000) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Note body must contain 1 to 10,000 characters');
+    }
     const activity = await deps.incidents.addNote(req.params.id, body, req.userId!);
     if (!activity) return sendError(res, 404, 'NOT_FOUND', 'Incident not found');
     res.json(activity);
@@ -148,4 +188,10 @@ function asyncRoute(
 async function cleanupFiles(input: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] } | undefined): Promise<void> {
   const files = Array.isArray(input) ? input : [];
   await Promise.allSettled(files.map(({ path }) => unlink(path)));
+}
+
+function objectBody(input: unknown): Record<string, unknown> | null {
+  return typeof input === 'object' && input !== null && !Array.isArray(input)
+    ? input as Record<string, unknown>
+    : null;
 }

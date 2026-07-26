@@ -15,7 +15,7 @@ export function createContainer() {
   const repo = createSqliteRepo(db);
   const parser = createWinstonParser();
   const analyzer = createRuleAnalyzer();
-  const jwtSecret = process.env.JWT_SECRET ?? 'dev-triage-secret';
+  const jwtSecret = resolveJwtSecret(process.env);
   return {
     repo,
     parser,
@@ -27,4 +27,13 @@ export function createContainer() {
     stats: createStatsApp(repo),
     incidents: createIncidentsApp(repo),
   };
+}
+
+export function resolveJwtSecret(env: NodeJS.ProcessEnv): string {
+  const configured = env.JWT_SECRET?.trim();
+  if (configured) return configured;
+  if (env.NODE_ENV === 'production') {
+    throw Reflect.construct(Error, ['JWT_SECRET is required in production']) as Error;
+  }
+  return 'dev-triage-secret';
 }
