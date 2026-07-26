@@ -27,7 +27,8 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
 
   const detailQuery = useQuery({
     queryKey: ['incident', id, token],
-    queryFn: () => apiClient.getIncident(id, token)
+    queryFn: () => apiClient.getIncident(id, token),
+    enabled: Boolean(id)
   });
 
   const invalidate = async () => {
@@ -41,6 +42,9 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
     onSuccess: async () => {
       await invalidate();
       setSnackbar('Incident updated');
+    },
+    onError: (error) => {
+      setSnackbar(error instanceof Error ? error.message : 'Unable to update incident');
     }
   });
 
@@ -50,6 +54,9 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
       setNote('');
       await invalidate();
       setSnackbar('Note added');
+    },
+    onError: (error) => {
+      setSnackbar(error instanceof Error ? error.message : 'Unable to add note');
     }
   });
 
@@ -65,8 +72,37 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
         />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.content}>
+        {incident && detailQuery.isRefetchError ? (
+          <Text style={[styles.warning, { color: theme.colors.error }]}>
+            Refresh failed — showing the last incident data. {detailQuery.error.message}
+          </Text>
+        ) : null}
         {!incident ? (
-          <Text style={{ color: canvas.textDim }}>{detailQuery.isLoading ? 'Loading incident...' : 'Incident unavailable'}</Text>
+          <View style={[styles.statePanel, { backgroundColor: canvas.surface, borderColor: canvas.border }]}>
+            <Text style={[styles.stateTitle, { color: !id || detailQuery.isError ? theme.colors.error : canvas.text }]}>
+              {!id
+                ? 'Invalid incident link'
+                : detailQuery.isPending
+                  ? 'Loading incident…'
+                  : detailQuery.isError
+                    ? 'Request failed'
+                    : 'Incident unavailable'}
+            </Text>
+            <Text style={[styles.stateBody, { color: canvas.textDim }]}>
+              {!id
+                ? 'The link does not include an incident ID.'
+                : detailQuery.isPending
+                  ? 'Fetching incident details, related logs, and history.'
+                  : detailQuery.isError
+                    ? detailQuery.error.message
+                    : 'This incident could not be found.'}
+            </Text>
+            {id && detailQuery.isError ? (
+              <Button compact mode="outlined" onPress={() => detailQuery.refetch()} style={styles.retryButton}>
+                Try again
+              </Button>
+            ) : null}
+          </View>
         ) : (
           <>
             <View style={[styles.panel, { backgroundColor: canvas.surface, borderColor: canvas.border }]}>
@@ -101,7 +137,11 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
             <SegmentedButtons
               value={incident.status}
               onValueChange={(value) => patchMutation.mutate({ status: value as Status })}
-              buttons={STATUSES.map((item) => ({ value: item, label: item }))}
+              buttons={STATUSES.map((item) => ({
+                value: item,
+                label: item,
+                disabled: patchMutation.isPending
+              }))}
               density="small"
               style={styles.segment}
             />
@@ -110,6 +150,7 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
                 compact
                 mode="outlined"
                 onPress={() => patchMutation.mutate({ acknowledged: !incident.acknowledged })}
+                disabled={patchMutation.isPending}
                 style={styles.actionButton}
               >
                 {incident.acknowledged ? 'Unacknowledge' : 'Acknowledge'}
@@ -118,6 +159,7 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
                 compact
                 mode="outlined"
                 onPress={() => patchMutation.mutate({ assigneeId: 'u_1' })}
+                disabled={patchMutation.isPending}
                 style={styles.actionButton}
               >
                 Assign to me
@@ -216,6 +258,11 @@ const styles = StyleSheet.create({
   appbar: { borderBottomWidth: 1 },
   appbarTitle: { fontSize: 20, fontWeight: '400' },
   content: { padding: 12, paddingBottom: 88 },
+  warning: { fontSize: DENSITY.fontSize, lineHeight: 18, marginBottom: 10 },
+  statePanel: { borderRadius: RADIUS.panel, borderWidth: 1, padding: 16 },
+  stateTitle: { fontSize: 16, fontWeight: '600' },
+  stateBody: { fontSize: DENSITY.fontSize, lineHeight: 18, marginTop: 4 },
+  retryButton: { alignSelf: 'flex-start', borderRadius: RADIUS.control, marginTop: 10 },
   panel: { borderRadius: RADIUS.panel, borderWidth: 1, marginBottom: 10, padding: 10 },
   title: { fontSize: 27, fontWeight: '400', lineHeight: 31 },
   chips: { alignItems: 'center', flexDirection: 'row', gap: 6, marginTop: 8 },

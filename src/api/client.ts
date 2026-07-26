@@ -1,6 +1,7 @@
 import mock from '../../contract/mock.json';
 import {
   type Activity,
+  type ApiError,
   type Incident,
   type IncidentDetail,
   type IncidentListResponse,
@@ -19,6 +20,7 @@ export const API_BASE = 'http://172.20.1.228:4000/api';
 export const USE_MOCK = true;
 
 type LoginResponse = { token: string; user: User };
+type ApiErrorCode = ApiError['error']['code'];
 type MockShape = {
   user: User;
   token: string;
@@ -45,6 +47,47 @@ const mockHistory = new Map<string, Activity[]>(
   ])
 );
 
+const API_ERROR_CODES: ReadonlySet<ApiErrorCode> = new Set([
+  'UNAUTHORIZED',
+  'NOT_FOUND',
+  'UNSUPPORTED_LOG_FORMAT',
+  'VALIDATION_ERROR',
+  'INTERNAL'
+]);
+
+export class ApiClientError extends Error {
+  readonly status: number;
+  readonly code?: ApiErrorCode;
+
+  constructor(status: number, message: string, code?: ApiErrorCode) {
+    super(message);
+    this.name = 'ApiClientError';
+    this.status = status;
+    this.code = code;
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+export function createApiError(status: number, body: unknown): ApiClientError {
+  if (isRecord(body) && isRecord(body.error)) {
+    const message = body.error.message;
+    const rawCode = body.error.code;
+    const code =
+      typeof rawCode === 'string' && API_ERROR_CODES.has(rawCode as ApiErrorCode)
+        ? (rawCode as ApiErrorCode)
+        : undefined;
+
+    if (typeof message === 'string' && message.trim()) {
+      return new ApiClientError(status, message, code);
+    }
+  }
+
+  return new ApiClientError(status, `Request failed (${status})`);
+}
+
 function apiError(message: string): Error {
   return new Error(message);
 }
@@ -70,9 +113,22 @@ async function request<T>(path: string, init?: RequestInit, token?: string | nul
     }
   });
 
-  const body = await response.json();
+  const rawBody = await response.text();
+  let body: unknown = null;
+
+  if (rawBody) {
+    try {
+      body = JSON.parse(rawBody) as unknown;
+    } catch {
+      body = rawBody;
+    }
+  }
+
   if (!response.ok) {
-    throw apiError(body?.error?.message ?? 'Request failed');
+    throw createApiError(response.status, body);
+  }
+  if (!isRecord(body)) {
+    throw new ApiClientError(response.status, 'Invalid server response');
   }
   return body as T;
 }
