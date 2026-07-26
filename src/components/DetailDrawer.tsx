@@ -16,6 +16,7 @@ import { addNote, getIncident, patchIncident } from '../api/client';
 import type { Incident, Status } from '../api/types';
 import { STATUSES } from '../api/types';
 import { FONT_MONO } from '../theme/tokens';
+import { formatUtcTimestamp } from '../utils/date';
 import { SeverityBadge } from './SeverityBadge';
 import { StatusPill } from './StatusPill';
 
@@ -98,12 +99,12 @@ export function DetailDrawer({
 
           <Group grow>
             <Stack gap={2}>
-              <Text size="xs" c="dimmed">First seen</Text>
-              <Text className="mono" size="sm">{detail.firstSeen}</Text>
+              <Text size="xs" c="dimmed">First seen (UTC)</Text>
+              <Text className="mono" size="sm">{formatUtcTimestamp(detail.firstSeen)}</Text>
             </Stack>
             <Stack gap={2}>
-              <Text size="xs" c="dimmed">Last seen</Text>
-              <Text className="mono" size="sm">{detail.lastSeen}</Text>
+              <Text size="xs" c="dimmed">Last seen (UTC)</Text>
+              <Text className="mono" size="sm">{formatUtcTimestamp(detail.lastSeen)}</Text>
             </Stack>
           </Group>
 
@@ -142,7 +143,8 @@ export function DetailDrawer({
             </Button>
             {detail.history.map((activity) => (
               <Text key={activity.id} size="xs" c="dimmed">
-                <span className="mono">{activity.at}</span> {activity.actor}: {activity.body}
+                <span className="mono">{formatUtcTimestamp(activity.at)}</span>{' '}
+                {activity.actor}: {activity.body}
               </Text>
             ))}
           </Stack>
@@ -157,7 +159,7 @@ export function DetailDrawer({
                     size="xs"
                     style={{ fontFamily: FONT_MONO, whiteSpace: 'pre-wrap' }}
                   >
-                    [{entry.timestamp}] {entry.level.toUpperCase()} {entry.module}
+                    [{formatUtcTimestamp(entry.timestamp)}] {entry.level.toUpperCase()} {entry.module}
                     {'\n'}
                     {entry.message}
                     {entry.stack ? `\n${entry.stack}` : ''}

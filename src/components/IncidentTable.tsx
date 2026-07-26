@@ -2,17 +2,9 @@ import { Box, ScrollArea, Table, Text, useMantineColorScheme } from '@mantine/co
 import type { CSSProperties } from 'react';
 import type { Incident } from '../api/types';
 import { SEVERITY_COLORS } from '../theme/tokens';
+import { formatUtcTimestamp } from '../utils/date';
 import { SeverityBadge } from './SeverityBadge';
 import { StatusPill } from './StatusPill';
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('en', {
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
-}
 
 export function IncidentTable({
   incidents,
@@ -43,8 +35,8 @@ export function IncidentTable({
               <Table.Th>Severity</Table.Th>
               <Table.Th>Status</Table.Th>
               <Table.Th ta="right">Occurrences</Table.Th>
-              <Table.Th>First seen</Table.Th>
-              <Table.Th>Last seen</Table.Th>
+              <Table.Th>First seen (UTC)</Table.Th>
+              <Table.Th>Last seen (UTC)</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -80,8 +72,8 @@ export function IncidentTable({
                   <Table.Td ta="right" className="mono">
                     {incident.occurrences.toLocaleString()}
                   </Table.Td>
-                  <Table.Td className="mono">{formatDate(incident.firstSeen)}</Table.Td>
-                  <Table.Td className="mono">{formatDate(incident.lastSeen)}</Table.Td>
+                  <Table.Td className="mono">{formatUtcTimestamp(incident.firstSeen)}</Table.Td>
+                  <Table.Td className="mono">{formatUtcTimestamp(incident.lastSeen)}</Table.Td>
                 </Table.Tr>
               );
             })}

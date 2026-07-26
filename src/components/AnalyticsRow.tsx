@@ -2,6 +2,7 @@ import { Grid, Group, Stack, Text, Title, useMantineColorScheme } from '@mantine
 import { BarChart, DonutChart, LineChart } from '@mantine/charts';
 import type { Stats } from '../api/types';
 import { CHART_SERIES, STATUS_COLORS } from '../theme/tokens';
+import { formatUtcDateLabel } from '../utils/date';
 
 export function AnalyticsRow({ stats }: { stats: Stats }) {
   const { colorScheme } = useMantineColorScheme();
@@ -22,6 +23,10 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
     title: incident.title.replace('Schema drift: ', ''),
     occurrences: incident.occurrences,
     color: series[index % series.length],
+  }));
+  const trendData = stats.trend.map((bucket) => ({
+    ...bucket,
+    date: formatUtcDateLabel(bucket.date),
   }));
 
   return (
@@ -72,10 +77,10 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
       </Grid.Col>
       <Grid.Col span={12}>
         <Stack className="surface compact-card" gap={8}>
-          <Text c="dimmed" size="xs" fw={650}>Trend</Text>
+          <Text c="dimmed" size="xs" fw={650}>Trend by UTC date</Text>
           <LineChart
             h={150}
-            data={stats.trend}
+            data={trendData}
             dataKey="date"
             series={[{ name: 'count', color: series[1] }]}
             curveType="linear"

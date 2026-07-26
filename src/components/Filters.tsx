@@ -2,6 +2,7 @@ import { Group, MultiSelect, Select, TextInput } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import type { Incident, IncidentQuery, SortField } from '../api/types';
 import { SEVERITIES, STATUSES } from '../api/types';
+import { toUtcDateKey } from '../utils/date';
 
 type Range = [string | null, string | null];
 
@@ -56,12 +57,15 @@ export function Filters({
       />
       <DatePickerInput
         type="range"
-        label="Last seen"
+        label="Last seen (UTC)"
         placeholder="Date range"
         value={range}
         onChange={(value) => {
           onRangeChange(value);
-          update({ from: value[0] ?? undefined, to: value[1] ?? undefined });
+          update({
+            from: value[0] ? toUtcDateKey(value[0]) : undefined,
+            to: value[1] ? toUtcDateKey(value[1]) : undefined,
+          });
         }}
         clearable
         w={230}

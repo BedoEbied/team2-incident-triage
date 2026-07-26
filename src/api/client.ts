@@ -12,6 +12,7 @@ import type {
   UploadJob,
 } from './types';
 import { SEVERITY_RANK } from './types';
+import { toUtcDateKey } from '../utils/date';
 
 export const API_BASE = 'http://localhost:4000/api';
 export const USE_MOCK = true;
@@ -69,10 +70,6 @@ function compareBy(sort: SortField, order: 'asc' | 'desc') {
   };
 }
 
-function dateOnly(value: string) {
-  return value.slice(0, 10);
-}
-
 function mockIncidents(query: IncidentQuery = {}): IncidentListResponse {
   const q = query.q?.trim().toLowerCase();
   const sort = query.sort ?? 'severity';
@@ -85,8 +82,8 @@ function mockIncidents(query: IncidentQuery = {}): IncidentListResponse {
       if (query.severity?.length && !query.severity.includes(incident.severity)) return false;
       if (query.status?.length && !query.status.includes(incident.status)) return false;
       if (query.module && incident.module !== query.module) return false;
-      if (query.from && dateOnly(incident.lastSeen) < query.from) return false;
-      if (query.to && dateOnly(incident.lastSeen) > query.to) return false;
+      if (query.from && toUtcDateKey(incident.lastSeen) < query.from) return false;
+      if (query.to && toUtcDateKey(incident.lastSeen) > query.to) return false;
       return true;
     })
     .sort(compareBy(sort, order));
