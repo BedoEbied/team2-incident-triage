@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Card, Text, useTheme } from 'react-native-paper';
 import type { Incident } from '@/api/types';
 import { CANVAS, DENSITY, RADIUS, SEVERITY_COLORS } from '@/theme/tokens';
+import { FONT_MONO_NATIVE } from '@/theme/fonts';
 import { formatDateTime } from './format';
 import { SeverityChip, StatusChip } from './chips';
 
@@ -48,13 +49,13 @@ export function IncidentCard({ incident, onPress }: IncidentCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { marginBottom: 8, borderRadius: RADIUS, overflow: 'hidden' },
+  card: { marginBottom: 8, borderRadius: RADIUS.control, overflow: 'hidden' },
   accent: { bottom: 0, left: 0, position: 'absolute', top: 0, width: 3 },
   content: { gap: 6, paddingBottom: 10, paddingLeft: 12, paddingRight: 10, paddingTop: 10 },
   header: { alignItems: 'flex-start', flexDirection: 'row', gap: 8 },
-  title: { flex: 1, fontSize: 14, fontWeight: '700', lineHeight: 18 },
-  count: { fontSize: 17, fontWeight: '800', lineHeight: 20 },
+  title: { flex: 1, fontSize: 14, fontWeight: '600', lineHeight: 18 },
+  count: { fontFamily: FONT_MONO_NATIVE, fontSize: 16, fontWeight: '600', lineHeight: 20 },
   summary: { fontSize: DENSITY.fontSize, lineHeight: 17 },
   meta: { alignItems: 'center', flexDirection: 'row', gap: 6 },
-  timestamp: { flex: 1, fontFamily: 'Courier', fontSize: 12, textAlign: 'right' }
+  timestamp: { flex: 1, fontFamily: FONT_MONO_NATIVE, fontSize: 12, textAlign: 'right' }
 });

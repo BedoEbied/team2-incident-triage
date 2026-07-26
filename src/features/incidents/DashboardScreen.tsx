@@ -7,7 +7,7 @@ import { apiClient } from '@/api/client';
 import { SEVERITIES, STATUSES, type Incident, type Severity, type SortField, type Status } from '@/api/types';
 import { cacheIncidentList, readCachedIncidentList } from '@/storage/cache';
 import { useAuth } from '@/features/auth/AuthContext';
-import { CANVAS, DENSITY, RADIUS } from '@/theme/tokens';
+import { BRAND, CANVAS, DENSITY, RADIUS } from '@/theme/tokens';
 import { IncidentCard } from './IncidentCard';
 import { startIncidentPolling } from '@/notify/poll';
 
@@ -63,7 +63,11 @@ export function DashboardScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: canvas.page }]}>
       <Appbar.Header mode="small" elevated={false} style={[styles.appbar, { backgroundColor: canvas.surface, borderBottomColor: canvas.border }]}>
-        <Appbar.Content title="Active incidents" titleStyle={styles.appbarTitle} />
+        <View style={[styles.brandMark, { backgroundColor: BRAND.lime }]} />
+        <Appbar.Content
+          title="Active incidents"
+          titleStyle={[styles.appbarTitle, { color: canvas.text, fontFamily: theme.fonts.titleLarge.fontFamily }]}
+        />
         <Appbar.Action icon="logout" onPress={logout} />
       </Appbar.Header>
       <ScrollView
@@ -135,7 +139,14 @@ function SummaryTile({ label, value }: { label: string; value: number }) {
   const canvas = CANVAS[scheme];
   return (
     <View style={[styles.tile, { backgroundColor: canvas.surface, borderColor: canvas.border }]}>
-      <Text style={[styles.tileValue, { color: canvas.text }]}>{value}</Text>
+      <Text
+        style={[
+          styles.tileValue,
+          { color: canvas.text, fontFamily: theme.fonts.displayLarge.fontFamily }
+        ]}
+      >
+        {value}
+      </Text>
       <Text numberOfLines={1} style={[styles.tileLabel, { color: canvas.textDim }]}>{label}</Text>
     </View>
   );
@@ -144,16 +155,17 @@ function SummaryTile({ label, value }: { label: string; value: number }) {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   appbar: { borderBottomWidth: 1 },
-  appbarTitle: { fontSize: 15, fontWeight: '700' },
+  brandMark: { borderRadius: 2, height: 9, marginLeft: 16, width: 9 },
+  appbarTitle: { fontSize: 20, fontWeight: '400' },
   content: { padding: 12, paddingBottom: 28 },
   tiles: { flexDirection: 'row', gap: 8 },
-  tile: { borderRadius: RADIUS, borderWidth: 1, flex: 1, minHeight: 58, paddingHorizontal: 8, paddingVertical: 8 },
-  tileValue: { fontSize: 20, fontWeight: '800', lineHeight: 23 },
-  tileLabel: { fontSize: 11, fontWeight: '700', marginTop: 3 },
+  tile: { borderRadius: RADIUS.control, borderWidth: 1, flex: 1, minHeight: 72, paddingHorizontal: 8, paddingVertical: 7 },
+  tileValue: { fontSize: DENSITY.statSize, fontWeight: '400', lineHeight: 41 },
+  tileLabel: { fontSize: 11, fontWeight: '600', marginTop: 2 },
   offline: { fontSize: DENSITY.fontSize, marginTop: 8 },
-  search: { borderRadius: RADIUS, borderWidth: 1, height: 42, marginTop: 10 },
+  search: { borderRadius: RADIUS.control, borderWidth: 1, height: 42, marginTop: 10 },
   searchInput: { fontSize: DENSITY.fontSize, minHeight: 42 },
-  filterLabel: { fontSize: 11, fontWeight: '800', marginBottom: 4, marginTop: 10, textTransform: 'uppercase' },
-  segment: { borderRadius: RADIUS },
+  filterLabel: { fontSize: 11, fontWeight: '600', marginBottom: 4, marginTop: 10, textTransform: 'uppercase' },
+  segment: { borderRadius: RADIUS.control },
   list: { marginTop: 12 }
 });

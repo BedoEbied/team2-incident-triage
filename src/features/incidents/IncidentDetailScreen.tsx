@@ -7,7 +7,8 @@ import { apiClient } from '@/api/client';
 import type { Status } from '@/api/types';
 import { STATUSES } from '@/api/types';
 import { useAuth } from '@/features/auth/AuthContext';
-import { CANVAS, DENSITY, FONT_MONO, RADIUS } from '@/theme/tokens';
+import { CANVAS, DENSITY, RADIUS } from '@/theme/tokens';
+import { FONT_MONO_NATIVE } from '@/theme/fonts';
 import { SeverityChip, StatusChip } from './chips';
 import { formatFullDateTime } from './format';
 
@@ -58,7 +59,10 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
     <View style={[styles.screen, { backgroundColor: canvas.page }]}>
       <Appbar.Header mode="small" elevated={false} style={[styles.appbar, { backgroundColor: canvas.surface, borderBottomColor: canvas.border }]}>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Incident detail" titleStyle={styles.appbarTitle} />
+        <Appbar.Content
+          title="Incident detail"
+          titleStyle={[styles.appbarTitle, { color: canvas.text, fontFamily: theme.fonts.titleLarge.fontFamily }]}
+        />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.content}>
         {!incident ? (
@@ -66,7 +70,14 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
         ) : (
           <>
             <View style={[styles.panel, { backgroundColor: canvas.surface, borderColor: canvas.border }]}>
-              <Text style={[styles.title, { color: canvas.text }]}>{incident.title}</Text>
+              <Text
+                style={[
+                  styles.title,
+                  { color: canvas.text, fontFamily: theme.fonts.headlineSmall.fontFamily }
+                ]}
+              >
+                {incident.title}
+              </Text>
               <View style={styles.chips}>
                 <SeverityChip severity={incident.severity} />
                 <StatusChip status={incident.status} />
@@ -199,28 +210,28 @@ function Field({ title, body, mono }: { title: string; body: string; mono?: bool
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   appbar: { borderBottomWidth: 1 },
-  appbarTitle: { fontSize: 15, fontWeight: '700' },
+  appbarTitle: { fontSize: 20, fontWeight: '400' },
   content: { padding: 12, paddingBottom: 88 },
-  panel: { borderRadius: RADIUS, borderWidth: 1, marginBottom: 10, padding: 10 },
-  title: { fontSize: 17, fontWeight: '800', lineHeight: 22 },
+  panel: { borderRadius: RADIUS.panel, borderWidth: 1, marginBottom: 10, padding: 10 },
+  title: { fontSize: 27, fontWeight: '400', lineHeight: 31 },
   chips: { alignItems: 'center', flexDirection: 'row', gap: 6, marginTop: 8 },
   count: { flex: 1, fontSize: 12, textAlign: 'right' },
   summary: { fontSize: 14, lineHeight: 19, marginTop: 10 },
   explanation: { fontSize: DENSITY.fontSize, lineHeight: 18, marginTop: 8 },
   section: { marginBottom: 4, marginTop: 0 },
-  field: { borderRadius: RADIUS, borderWidth: 1, marginBottom: 6, paddingVertical: 0 },
-  fieldTitle: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
+  field: { borderRadius: RADIUS.control, borderWidth: 1, marginBottom: 6, paddingVertical: 0 },
+  fieldTitle: { fontSize: 11, fontWeight: '600', textTransform: 'uppercase' },
   fieldBody: { fontSize: DENSITY.fontSize, lineHeight: 18 },
-  label: { fontSize: 11, fontWeight: '800', marginBottom: 6, textTransform: 'uppercase' },
-  segment: { borderRadius: RADIUS, marginBottom: 10 },
+  label: { fontSize: 11, fontWeight: '600', marginBottom: 6, textTransform: 'uppercase' },
+  segment: { borderRadius: RADIUS.control, marginBottom: 10 },
   actions: { flexDirection: 'row', gap: 8, marginBottom: 10 },
-  actionButton: { borderRadius: RADIUS, flex: 1 },
+  actionButton: { borderRadius: RADIUS.control, flex: 1 },
   note: { fontSize: DENSITY.fontSize, marginBottom: 8, minHeight: 72 },
   logBlock: { borderTopWidth: 1, gap: 4, paddingVertical: 8 },
-  mono: { fontFamily: 'Courier', fontSize: 12, lineHeight: 16 },
-  monoDim: { fontFamily: 'Courier', fontSize: 11, lineHeight: 15 },
+  mono: { fontFamily: FONT_MONO_NATIVE, fontSize: 12, lineHeight: 16 },
+  monoDim: { fontFamily: FONT_MONO_NATIVE, fontSize: 11, lineHeight: 15 },
   historyItem: { borderBottomWidth: 1, paddingVertical: 8 },
-  historyTitle: { fontSize: DENSITY.fontSize, fontWeight: '700' },
+  historyTitle: { fontSize: DENSITY.fontSize, fontWeight: '600' },
   historyBody: { fontSize: DENSITY.fontSize, lineHeight: 18, marginTop: 2 },
-  fab: { borderRadius: RADIUS, borderWidth: 1, bottom: 18, position: 'absolute', right: 16 }
+  fab: { borderRadius: RADIUS.control, borderWidth: 1, bottom: 18, position: 'absolute', right: 16 }
 });

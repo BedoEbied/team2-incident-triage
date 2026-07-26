@@ -48,12 +48,14 @@ const systemFonts: AppFonts = {
   })
 };
 
+export const FONT_MONO_NATIVE = systemFonts.mono;
+
 const instrumentFonts: AppFonts = {
   display: 'InstrumentSerif_400Regular',
   ui: 'InstrumentSans_400Regular',
   uiMedium: 'InstrumentSans_500Medium',
   uiSemibold: 'InstrumentSans_600SemiBold',
-  mono: systemFonts.mono
+  mono: FONT_MONO_NATIVE
 };
 
 export function appFonts(loaded: boolean): AppFonts {

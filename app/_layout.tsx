@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { Stack, router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
+import { useFonts } from 'expo-font';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PaperProvider } from 'react-native-paper';
 import { paperTheme } from '@/theme/paperTheme';
+import { FONT_ASSETS } from '@/theme/fonts';
 import { tokenStorage } from '@/storage/token';
 import { AuthProvider } from '@/features/auth/AuthContext';
 
@@ -35,7 +37,8 @@ function useNotificationObserver() {
 
 export default function RootLayout() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
-  const theme = useMemo(() => paperTheme(scheme), [scheme]);
+  const [fontsLoaded] = useFonts(FONT_ASSETS);
+  const theme = useMemo(() => paperTheme(scheme, fontsLoaded), [fontsLoaded, scheme]);
   const [initialToken, setInitialToken] = useState<string | null | undefined>(undefined);
 
   useNotificationObserver();

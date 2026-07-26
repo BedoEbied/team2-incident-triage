@@ -29,6 +29,6 @@ export function StatusChip({ status }: { status: Status }) {
 }
 
 const styles = StyleSheet.create({
-  chip: { height: 28, borderRadius: RADIUS },
-  label: { fontSize: 12, lineHeight: 16, fontWeight: '700' }
+  chip: { height: 28, borderRadius: RADIUS.control },
+  label: { fontSize: 12, lineHeight: 16, fontWeight: '600' }
 });

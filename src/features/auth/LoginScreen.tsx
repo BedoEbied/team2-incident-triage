@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { Appbar, Button, Snackbar, Text, TextInput, useTheme } from 'react-native-paper';
 import { useAuth } from './AuthContext';
-import { CANVAS, DENSITY, RADIUS } from '@/theme/tokens';
+import { BRAND, CANVAS, DENSITY, RADIUS } from '@/theme/tokens';
 
 export function LoginScreen() {
   const theme = useTheme();
@@ -29,11 +29,18 @@ export function LoginScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: canvas.page }]}>
       <Appbar.Header mode="small" elevated={false} style={{ backgroundColor: canvas.surface }}>
-        <Appbar.Content title="Incident Triage" titleStyle={styles.appbarTitle} />
+        <View style={[styles.brandMark, { backgroundColor: BRAND.lime }]} />
+        <Appbar.Content
+          title="Incident Triage"
+          titleStyle={[styles.appbarTitle, { color: canvas.text, fontFamily: theme.fonts.titleLarge.fontFamily }]}
+        />
       </Appbar.Header>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.body}>
         <View style={[styles.panel, { backgroundColor: canvas.surface, borderColor: canvas.border }]}>
-          <Text variant="titleMedium" style={[styles.title, { color: canvas.text }]}>
+          <Text
+            variant="headlineSmall"
+            style={[styles.title, { color: canvas.text, fontFamily: theme.fonts.headlineSmall.fontFamily }]}
+          >
             On-call sign in
           </Text>
           <Text variant="bodySmall" style={[styles.copy, { color: canvas.textDim }]}>
@@ -72,10 +79,11 @@ export function LoginScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { flex: 1, justifyContent: 'center', padding: 16 },
-  panel: { borderWidth: 1, borderRadius: RADIUS, padding: 16, gap: 10 },
-  appbarTitle: { fontSize: 15, fontWeight: '700' },
-  title: { fontSize: 18, fontWeight: '700' },
+  panel: { borderWidth: 1, borderRadius: RADIUS.panel, padding: 16, gap: 10 },
+  brandMark: { borderRadius: 2, height: 9, marginLeft: 16, width: 9 },
+  appbarTitle: { fontSize: 20, fontWeight: '400' },
+  title: { fontSize: 27, fontWeight: '400', lineHeight: 31 },
   copy: { marginBottom: 4, fontSize: DENSITY.fontSize },
   input: { marginTop: 2 },
-  button: { borderRadius: RADIUS, marginTop: 6 }
+  button: { borderRadius: RADIUS.control, marginTop: 6 }
 });
