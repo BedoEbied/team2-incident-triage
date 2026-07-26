@@ -131,7 +131,7 @@ export function createSqliteRepo(db: Db): IncidentRepo {
         bySeverity[item.severity] += 1;
         byStatus[item.status] += 1;
       }
-      const trendRows = db.prepare("SELECT substr(timestamp, 1, 10) as date, COUNT(*) as count FROM log_entry GROUP BY date ORDER BY date").all() as { date: string; count: number }[];
+      const trendRows = db.prepare("SELECT date(timestamp) as date, COUNT(*) as count FROM log_entry GROUP BY date(timestamp) ORDER BY date(timestamp)").all() as { date: string; count: number }[];
       return {
         total: incidents.length,
         bySeverity,
