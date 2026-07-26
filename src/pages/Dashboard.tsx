@@ -23,6 +23,44 @@ import { CANVAS, DENSITY, FONT_MONO } from '../theme/tokens';
 
 type Range = [string | null, string | null];
 
+function ThemeIcon({ scheme }: { scheme: 'light' | 'dark' }) {
+  if (scheme === 'dark') {
+    return (
+      <svg
+        aria-hidden="true"
+        focusable="false"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      >
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20.3 15.2A8.5 8.5 0 0 1 8.8 3.7 8.5 8.5 0 1 0 20.3 15.2Z" />
+    </svg>
+  );
+}
+
 export function Dashboard() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const scheme = colorScheme === 'dark' ? 'dark' : 'light';
@@ -74,10 +112,11 @@ export function Dashboard() {
               <ActionIcon
                 variant="default"
                 aria-label="Toggle color scheme"
+                title="Toggle color scheme"
                 onClick={() => toggleColorScheme()}
                 size="lg"
               >
-                {scheme === 'dark' ? 'L' : 'D'}
+                <ThemeIcon scheme={scheme} />
               </ActionIcon>
             </Group>
           </Group>
