@@ -1,19 +1,26 @@
 import { createReadStream } from 'node:fs';
 import { createInterface } from 'node:readline/promises';
+import { createPublicError } from '../domain/errors.js';
 import type { LogParser, ParsedLogEntry } from '../domain/ports.js';
 
 export function createWinstonParser(): LogParser {
-  return { parseFile };
+  return { parseFile, streamFile };
 }
 
 async function parseFile(path: string): Promise<ParsedLogEntry[]> {
-  const rl = createInterface({ input: createReadStream(path, { encoding: 'utf8' }), crlfDelay: Infinity });
   const entries: ParsedLogEntry[] = [];
+  for await (const entry of streamFile(path)) entries.push(entry);
+  return entries;
+}
+
+async function* streamFile(path: string): AsyncIterable<ParsedLogEntry> {
+  const rl = createInterface({ input: createReadStream(path, { encoding: 'utf8' }), crlfDelay: Infinity });
   let block: string[] = [];
   let inBlock = false;
 
   for await (const line of rl) {
     if (line === '{') {
+      if (inBlock) throw malformedBlock();
       inBlock = true;
       block = [line];
       continue;
@@ -22,13 +29,13 @@ async function parseFile(path: string): Promise<ParsedLogEntry[]> {
     block.push(line);
     if (line === '}') {
       const parsed = parseBlock(block);
-      if (parsed) entries.push(parsed);
+      if (!parsed) throw malformedBlock();
+      yield parsed;
       inBlock = false;
       block = [];
     }
   }
-
-  return entries;
+  if (inBlock) throw malformedBlock();
 }
 
 function parseBlock(lines: string[]): ParsedLogEntry | null {
@@ -120,7 +127,12 @@ function parseSegment(line: string): { text: string; continues: boolean } | null
 }
 
 function toIsoUtc(timestamp: string): string {
-  return `${timestamp.replace(' ', 'T')}.000Z`;
+  const candidate = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(timestamp)
+    ? `${timestamp.replace(' ', 'T')}.000Z`
+    : timestamp;
+  const epoch = Date.parse(candidate);
+  if (Number.isNaN(epoch)) throw malformedBlock();
+  return (Reflect.construct(Date, [epoch]) as Date).toISOString();
 }
 
 function extractModule(stack: string): { module: string; symbol: string } {
@@ -136,4 +148,11 @@ function extractModule(stack: string): { module: string; symbol: string } {
 
 function firstStackLine(stack: string | undefined): string {
   return (stack ?? '').split('\n')[0]?.trim() ?? '';
+}
+
+function malformedBlock(): Error {
+  return createPublicError(
+    'UNSUPPORTED_LOG_FORMAT',
+    'Uploaded file contains a malformed or unparseable log block',
+  );
 }

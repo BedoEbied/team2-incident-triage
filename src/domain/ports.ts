@@ -46,6 +46,7 @@ export interface Analysis {
 
 export interface LogParser {
   parseFile(path: string): Promise<ParsedLogEntry[]>;
+  streamFile(path: string): AsyncIterable<ParsedLogEntry>;
 }
 
 export interface Analyzer {
@@ -59,6 +60,10 @@ export interface IncidentRepo {
   findUserById(id: string): Promise<User | null>;
   isEmpty(): Promise<boolean>;
   ingest(fileName: string, groups: GroupedIncident[], analyzer: Analyzer): Promise<void>;
+  beginStaging(jobId: string, files: { fileIndex: number; fileName: string }[]): Promise<void>;
+  stageEntry(jobId: string, fileIndex: number, entry: ParsedLogEntry): Promise<void>;
+  commitStaged(jobId: string, analyzer: Analyzer): Promise<{ parsed: number; grouped: number }>;
+  clearStaging(jobId: string): Promise<void>;
   list(query: IncidentQuery): Promise<{ items: Incident[]; total: number }>;
   detail(id: string): Promise<IncidentDetail | null>;
   updateIncident(id: string, patch: { status?: Status; assigneeId?: string | null; acknowledged?: boolean }, actor: string): Promise<Incident | null>;
