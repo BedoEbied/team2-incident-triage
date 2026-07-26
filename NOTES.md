@@ -18,3 +18,9 @@ The closest automated verification is committed and passing:
   retain its initial native URL while the protected layout waits for the session.
 
 Both production and development Android bundles completed successfully.
+
+## Web-preview dependencies (kept)
+
+`react-native-web`, `react-dom`, and `@expo/metro-runtime` plus the web-only
+`localStorage` token fallback (`Platform.OS === 'web'`) are **kept** for QA without a
+simulator. They do not run on native iOS/Android SecureStore paths.
