@@ -193,12 +193,14 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
               <Text style={[styles.label, { color: canvas.textDim }]}>Related log entries</Text>
               {incident.entries.map((entry) => (
                 <View key={entry.id} style={[styles.logBlock, { borderColor: canvas.border }]}>
-                  <Text style={[styles.mono, { color: canvas.textDim }]}>
-                    {formatUtcDateTime(entry.timestamp, { seconds: true })} {entry.level} {entry.code ?? ''}
-                  </Text>
-                  <Text style={[styles.mono, { color: canvas.text }]}>{entry.message}</Text>
-                  <Text style={[styles.monoDim, { color: canvas.textDim }]}>{entry.module}</Text>
-                  {entry.stack ? <Text style={[styles.monoDim, { color: canvas.textDim }]}>{entry.stack}</Text> : null}
+                  <MachineText color={canvas.textDim}>
+                    {`${formatUtcDateTime(entry.timestamp, { seconds: true })} ${entry.level} ${entry.code ?? ''}`}
+                  </MachineText>
+                  <MachineText color={canvas.text}>{entry.message}</MachineText>
+                  <MachineText color={canvas.textDim} dim>{entry.module}</MachineText>
+                  {entry.stack ? (
+                    <MachineText color={canvas.textDim} dim>{entry.stack}</MachineText>
+                  ) : null}
                 </View>
               ))}
             </View>
@@ -235,6 +237,30 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
         {snackbar}
       </Snackbar>
     </View>
+  );
+}
+
+function MachineText({
+  children,
+  color,
+  dim = false
+}: {
+  children: string;
+  color: string;
+  dim?: boolean;
+}) {
+  return (
+    <ScrollView
+      horizontal
+      nestedScrollEnabled
+      showsHorizontalScrollIndicator
+      style={styles.machineScroll}
+      contentContainerStyle={styles.machineScrollContent}
+    >
+      <Text selectable style={[dim ? styles.monoDim : styles.mono, { color }]}>
+        {children}
+      </Text>
+    </ScrollView>
   );
 }
 
@@ -279,6 +305,8 @@ const styles = StyleSheet.create({
   actionButton: { borderRadius: RADIUS.control, flex: 1 },
   note: { fontSize: DENSITY.fontSize, marginBottom: 8, minHeight: 72 },
   logBlock: { borderTopWidth: 1, gap: 4, paddingVertical: 8 },
+  machineScroll: { maxWidth: '100%' },
+  machineScrollContent: { minWidth: '100%' },
   mono: { fontFamily: FONT_MONO_NATIVE, fontSize: 12, lineHeight: 16 },
   monoDim: { fontFamily: FONT_MONO_NATIVE, fontSize: 11, lineHeight: 15 },
   historyItem: { borderBottomWidth: 1, paddingVertical: 8 },
