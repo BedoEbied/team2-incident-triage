@@ -1,0 +1,500 @@
+{
+  "user": {
+    "id": "u_1",
+    "name": "On-Call Engineer",
+    "email": "oncall@demo.io"
+  },
+  "token": "mock-jwt-token",
+  "incidents": [
+    {
+      "id": "inc_d385961619b6",
+      "fingerprint": "d385961619b6",
+      "title": "Sterling auth token missing from integration response",
+      "summary": "Every Sterling API call is dereferencing `access_token` on an undefined auth response, so the integration cannot authenticate and all downstream order sync fails.",
+      "severity": "Critical",
+      "status": "New",
+      "rootCause": "The Sterling auth endpoint is returning a non-2xx or empty body and the response is used without a guard, so `response.data` is undefined when `access_token` is read.",
+      "remediation": "Guard the auth response before dereferencing, log the raw status/body on failure, and verify STERLING_API_PK plus the token endpoint URL are valid for this environment.",
+      "confidence": 0.94,
+      "similarity": 1.0,
+      "occurrences": 661,
+      "firstSeen": "2026-04-23T16:23:27Z",
+      "lastSeen": "2026-05-04T11:27:05Z",
+      "module": "src/services/integrations/sterling-service.ts",
+      "modules": [
+        "src/services/integrations/sterling-service.ts"
+      ],
+      "code": null,
+      "acknowledged": false,
+      "assignee": null
+    },
+    {
+      "id": "inc_5ea9e31d10ee",
+      "fingerprint": "5ea9e31d10ee",
+      "title": "Schema drift: column `Location.Provider` missing from database",
+      "summary": "Sequelize is selecting a column the database does not have, so the query aborts. The model definition is ahead of the deployed schema.",
+      "severity": "High",
+      "status": "Investigating",
+      "rootCause": "A model attribute was added in code without a matching migration being run on this database, producing MySQL ER_BAD_FIELD_ERROR (1054).",
+      "remediation": "Run the pending migrations on this environment, or gate the new attribute behind a schema check. Confirm the model and the deployed table agree before redeploying.",
+      "confidence": 0.91,
+      "similarity": 1.0,
+      "occurrences": 106,
+      "firstSeen": "2026-05-16T23:51:07Z",
+      "lastSeen": "2026-05-16T23:51:09Z",
+      "module": "src/tasks/order-retrial-task.ts",
+      "modules": [
+        "src/tasks/order-retrial-task.ts",
+        "src/repos/order-repo.ts"
+      ],
+      "code": "GeneralError",
+      "acknowledged": true,
+      "assignee": {
+        "id": "u_1",
+        "name": "On-Call Engineer"
+      }
+    },
+    {
+      "id": "inc_2bd6eeeaca80",
+      "fingerprint": "2bd6eeeaca80",
+      "title": "Schema drift: column `Order.OrderNetworkTypeId` missing from database",
+      "summary": "Sequelize is selecting a column the database does not have, so the query aborts. The model definition is ahead of the deployed schema.",
+      "severity": "High",
+      "status": "New",
+      "rootCause": "A model attribute was added in code without a matching migration being run on this database, producing MySQL ER_BAD_FIELD_ERROR (1054).",
+      "remediation": "Run the pending migrations on this environment, or gate the new attribute behind a schema check. Confirm the model and the deployed table agree before redeploying.",
+      "confidence": 0.91,
+      "similarity": 1.0,
+      "occurrences": 58,
+      "firstSeen": "2026-05-19T11:11:10Z",
+      "lastSeen": "2026-05-20T15:00:18Z",
+      "module": "src/tasks/order-retrial-task.ts",
+      "modules": [
+        "src/tasks/order-retrial-task.ts",
+        "src/repos/order-repo.ts"
+      ],
+      "code": "GeneralError",
+      "acknowledged": false,
+      "assignee": null
+    },
+    {
+      "id": "inc_1403a02b9ddd",
+      "fingerprint": "1403a02b9ddd",
+      "title": "Connection timeouts reaching the Sterling API",
+      "summary": "Outbound calls to the Sterling API are timing out at the TCP layer, so order tracking and scheduling stall until the connection recovers.",
+      "severity": "High",
+      "status": "Resolved",
+      "rootCause": "Network path or upstream availability issue reaching the Sterling host on port 443 \u2014 not an application logic fault.",
+      "remediation": "Add a bounded retry with backoff around the Sterling client, alert on sustained timeout rates, and confirm egress/firewall rules and upstream status.",
+      "confidence": 0.82,
+      "similarity": 1.0,
+      "occurrences": 3,
+      "firstSeen": "2026-04-23T13:02:39Z",
+      "lastSeen": "2026-05-04T17:12:50Z",
+      "module": "unknown",
+      "modules": [
+        "unknown"
+      ],
+      "code": "SterlingError",
+      "acknowledged": false,
+      "assignee": null
+    },
+    {
+      "id": "inc_bc30a5b92890",
+      "fingerprint": "bc30a5b92890",
+      "title": "Connection timeouts reaching the Sterling API",
+      "summary": "Outbound calls to the Sterling API are timing out at the TCP layer, so order tracking and scheduling stall until the connection recovers.",
+      "severity": "High",
+      "status": "New",
+      "rootCause": "Network path or upstream availability issue reaching the Sterling host on port 443 \u2014 not an application logic fault.",
+      "remediation": "Add a bounded retry with backoff around the Sterling client, alert on sustained timeout rates, and confirm egress/firewall rules and upstream status.",
+      "confidence": 0.82,
+      "similarity": 1.0,
+      "occurrences": 3,
+      "firstSeen": "2026-05-04T12:00:01Z",
+      "lastSeen": "2026-05-04T14:11:44Z",
+      "module": "src/services/integrations/sterling-scheduling-service.ts",
+      "modules": [
+        "src/services/integrations/sterling-scheduling-service.ts"
+      ],
+      "code": "SterlingError",
+      "acknowledged": false,
+      "assignee": null
+    },
+    {
+      "id": "inc_01219e9c8bed",
+      "fingerprint": "01219e9c8bed",
+      "title": "Schema drift: column `Provider` missing from database",
+      "summary": "Sequelize is selecting a column the database does not have, so the query aborts. The model definition is ahead of the deployed schema.",
+      "severity": "High",
+      "status": "New",
+      "rootCause": "A model attribute was added in code without a matching migration being run on this database, producing MySQL ER_BAD_FIELD_ERROR (1054).",
+      "remediation": "Run the pending migrations on this environment, or gate the new attribute behind a schema check. Confirm the model and the deployed table agree before redeploying.",
+      "confidence": 0.91,
+      "similarity": 1.0,
+      "occurrences": 1,
+      "firstSeen": "2026-05-16T23:51:10Z",
+      "lastSeen": "2026-05-16T23:51:10Z",
+      "module": "src/tasks/update-order-locations-task.ts",
+      "modules": [
+        "src/tasks/update-order-locations-task.ts"
+      ],
+      "code": null,
+      "acknowledged": false,
+      "assignee": null
+    },
+    {
+      "id": "inc_008b083fc047",
+      "fingerprint": "008b083fc047",
+      "title": "Schema drift: column `OrderNetworkTypeId` missing from database",
+      "summary": "Sequelize is selecting a column the database does not have, so the query aborts. The model definition is ahead of the deployed schema.",
+      "severity": "High",
+      "status": "New",
+      "rootCause": "A model attribute was added in code without a matching migration being run on this database, producing MySQL ER_BAD_FIELD_ERROR (1054).",
+      "remediation": "Run the pending migrations on this environment, or gate the new attribute behind a schema check. Confirm the model and the deployed table agree before redeploying.",
+      "confidence": 0.91,
+      "similarity": 1.0,
+      "occurrences": 1,
+      "firstSeen": "2026-05-19T11:11:10Z",
+      "lastSeen": "2026-05-19T11:11:10Z",
+      "module": "src/tasks/update-order-task.ts",
+      "modules": [
+        "src/tasks/update-order-task.ts"
+      ],
+      "code": "GeneralError",
+      "acknowledged": false,
+      "assignee": null
+    },
+    {
+      "id": "inc_1d3209ec94b1",
+      "fingerprint": "1d3209ec94b1",
+      "title": "Location lookup failing for unknown or null external IDs",
+      "summary": "Scheduling lookups are being issued for location IDs that Sterling does not recognise, including null IDs, so those orders cannot be assigned a location.",
+      "severity": "Medium",
+      "status": "New",
+      "rootCause": "Orders carry stale or empty ExternalLocationId values that are passed straight to the scheduling API without validation.",
+      "remediation": "Skip lookups when the external location ID is null, and reconcile the stored location IDs against Sterling's current location list.",
+      "confidence": 0.87,
+      "similarity": 1.0,
+      "occurrences": 39,
+      "firstSeen": "2026-04-23T10:00:02Z",
+      "lastSeen": "2026-05-20T15:00:20Z",
+      "module": "src/services/integrations/sterling-scheduling-service.ts",
+      "modules": [
+        "src/services/integrations/sterling-scheduling-service.ts"
+      ],
+      "code": "SterlingNotFound",
+      "acknowledged": false,
+      "assignee": null
+    },
+    {
+      "id": "inc_2ab9bebf3cf8",
+      "fingerprint": "2ab9bebf3cf8",
+      "title": "Scheduling search called without coordinates or search term",
+      "summary": "The Sterling scheduling search is being invoked with neither coordinates nor a search term, so the request is rejected before any locations are returned.",
+      "severity": "Medium",
+      "status": "New",
+      "rootCause": "The location task builds a search request from order address data that is incomplete, and issues it without checking that at least one search key is present.",
+      "remediation": "Validate that latitude/longitude or a searchTerm is present before calling the scheduling service, and skip or queue the order when it is not.",
+      "confidence": 0.89,
+      "similarity": 1.0,
+      "occurrences": 18,
+      "firstSeen": "2026-04-23T10:00:02Z",
+      "lastSeen": "2026-05-20T15:00:20Z",
+      "module": "src/services/integrations/sterling-scheduling-service.ts",
+      "modules": [
+        "src/services/integrations/sterling-scheduling-service.ts"
+      ],
+      "code": "SterlingError",
+      "acknowledged": false,
+      "assignee": null
+    },
+    {
+      "id": "inc_60ba4b2daa4e",
+      "fingerprint": "60ba4b2daa4e",
+      "title": "Unclassified application error",
+      "summary": "An error was recorded that does not match a known failure pattern.",
+      "severity": "Low",
+      "status": "New",
+      "rootCause": "No rule matched this message. Review the related log entries and stack trace to classify it.",
+      "remediation": "Inspect the stack trace, then add a rule or fix for this pattern once the cause is understood.",
+      "confidence": 0.4,
+      "similarity": 1.0,
+      "occurrences": 3,
+      "firstSeen": "2026-04-23T16:23:27Z",
+      "lastSeen": "2026-04-23T16:23:27Z",
+      "module": "unknown",
+      "modules": [
+        "unknown"
+      ],
+      "code": "SterlingError",
+      "acknowledged": false,
+      "assignee": null
+    }
+  ],
+  "entriesByIncident": {
+    "inc_008b083fc047": [
+      {
+        "id": "inc_008b083fc047_e0",
+        "incidentId": "inc_008b083fc047",
+        "timestamp": "2026-05-19T11:11:10Z",
+        "level": "error",
+        "message": "Unknown column 'OrderNetworkTypeId' in 'field list'",
+        "code": "GeneralError",
+        "module": "src/tasks/update-order-task.ts",
+        "stack": "Error: Unknown column 'OrderNetworkTypeId' in 'field list'\n    at handle (/home/ibrahim/apps/sterling-integration-api/src/tasks/update-order-task.ts:37:23)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Task.handleOverLapping (/home/ibrahim/apps/sterling-integration-api/src/tasks/task.ts:87:17)"
+      }
+    ],
+    "inc_01219e9c8bed": [
+      {
+        "id": "inc_01219e9c8bed_e0",
+        "incidentId": "inc_01219e9c8bed",
+        "timestamp": "2026-05-16T23:51:10Z",
+        "level": "error",
+        "message": "Unknown column 'Provider' in 'field list'",
+        "code": null,
+        "module": "src/tasks/update-order-locations-task.ts",
+        "stack": "Error: \n    at Query.run (/home/ibrahim/apps/sterling-integration-api/node_modules/sequelize/src/dialects/mysql/query.js:46:25)\n    at /home/ibrahim/apps/sterling-integration-api/node_modules/sequelize/src/sequelize.js:650:28\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at MySQLQueryInterface.select (/home/ibrahim/apps/sterling-integration-api/node_modules/sequelize/src/dialects/abstract/query-interface.js:1001:12)\n    at Function.findAll (/home/ibrahim/apps/sterling-integration-api/node_modules/sequelize/src/model.js:1824:21)\n    at /home/ibrahim/apps/sterling"
+      }
+    ],
+    "inc_1403a02b9ddd": [
+      {
+        "id": "inc_1403a02b9ddd_e0",
+        "incidentId": "inc_1403a02b9ddd",
+        "timestamp": "2026-04-23T13:02:39Z",
+        "level": "error",
+        "message": "Error: read ETIMEDOUT",
+        "code": "SterlingError",
+        "module": "unknown",
+        "stack": ""
+      },
+      {
+        "id": "inc_1403a02b9ddd_e1",
+        "incidentId": "inc_1403a02b9ddd",
+        "timestamp": "2026-05-04T11:26:33Z",
+        "level": "error",
+        "message": "Error: read ETIMEDOUT",
+        "code": "SterlingError",
+        "module": "unknown",
+        "stack": ""
+      }
+    ],
+    "inc_1d3209ec94b1": [
+      {
+        "id": "inc_1d3209ec94b1_e0",
+        "incidentId": "inc_1d3209ec94b1",
+        "timestamp": "2026-04-23T10:00:02Z",
+        "level": "error",
+        "message": "A location with locationId null was not found.",
+        "code": "SterlingNotFound",
+        "module": "src/services/integrations/sterling-scheduling-service.ts",
+        "stack": "Error: A location with locationId null was not found.\n    at SterlingSchedulingService.requestAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:107:27)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at SterlingSchedulingService.getLocationByExternalId (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:47:24)\n    at UpdateOrderLocationsTask.getSterlingLocationsByExternalIds (/home/ibrahim/apps/sterling-integration-api/src/tasks/update-order-locations-task.t"
+      },
+      {
+        "id": "inc_1d3209ec94b1_e1",
+        "incidentId": "inc_1d3209ec94b1",
+        "timestamp": "2026-04-23T11:00:03Z",
+        "level": "error",
+        "message": "A location with locationId null was not found.",
+        "code": "SterlingNotFound",
+        "module": "src/services/integrations/sterling-scheduling-service.ts",
+        "stack": "Error: A location with locationId null was not found.\n    at SterlingSchedulingService.requestAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:107:27)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at SterlingSchedulingService.getLocationByExternalId (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:47:24)\n    at UpdateOrderLocationsTask.getSterlingLocationsByExternalIds (/home/ibrahim/apps/sterling-integration-api/src/tasks/update-order-locations-task.t"
+      }
+    ],
+    "inc_2ab9bebf3cf8": [
+      {
+        "id": "inc_2ab9bebf3cf8_e0",
+        "incidentId": "inc_2ab9bebf3cf8",
+        "timestamp": "2026-04-23T10:00:02Z",
+        "level": "error",
+        "message": "A valid latitude and longitude or searchTerm must be specified.",
+        "code": "SterlingError",
+        "module": "src/services/integrations/sterling-scheduling-service.ts",
+        "stack": "Error: A valid latitude and longitude or searchTerm must be specified.\n    at SterlingSchedulingService.requestAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:115:27)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at SterlingSchedulingService.getLocationByExternalId (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:47:24)\n    at UpdateOrderLocationsTask.getSterlingLocationsByExternalIds (/home/ibrahim/apps/sterling-integration-api/src/tasks/update-order"
+      },
+      {
+        "id": "inc_2ab9bebf3cf8_e1",
+        "incidentId": "inc_2ab9bebf3cf8",
+        "timestamp": "2026-04-23T11:00:01Z",
+        "level": "error",
+        "message": "A valid latitude and longitude or searchTerm must be specified.",
+        "code": "SterlingError",
+        "module": "src/services/integrations/sterling-scheduling-service.ts",
+        "stack": "Error: A valid latitude and longitude or searchTerm must be specified.\n    at SterlingSchedulingService.requestAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:115:27)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at SterlingSchedulingService.getLocationByExternalId (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:47:24)\n    at UpdateOrderLocationsTask.getSterlingLocationsByExternalIds (/home/ibrahim/apps/sterling-integration-api/src/tasks/update-order"
+      }
+    ],
+    "inc_2bd6eeeaca80": [
+      {
+        "id": "inc_2bd6eeeaca80_e0",
+        "incidentId": "inc_2bd6eeeaca80",
+        "timestamp": "2026-05-19T11:11:10Z",
+        "level": "error",
+        "message": "Unknown column 'Order.OrderNetworkTypeId' in 'field list'",
+        "code": "GeneralError",
+        "module": "src/tasks/order-retrial-task.ts",
+        "stack": "Error: Unknown column 'Order.OrderNetworkTypeId' in 'field list'\n    at handle (/home/ibrahim/apps/sterling-integration-api/src/tasks/order-retrial-task.ts:53:23)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Task.handleOverLapping (/home/ibrahim/apps/sterling-integration-api/src/tasks/task.ts:87:17)"
+      },
+      {
+        "id": "inc_2bd6eeeaca80_e1",
+        "incidentId": "inc_2bd6eeeaca80",
+        "timestamp": "2026-05-19T16:20:04Z",
+        "level": "error",
+        "message": "Unknown column 'Order.OrderNetworkTypeId' in 'field list'",
+        "code": "GeneralError",
+        "module": "src/tasks/order-retrial-task.ts",
+        "stack": "Error: Unknown column 'Order.OrderNetworkTypeId' in 'field list'\n    at handle (/home/ibrahim/apps/sterling-integration-api/src/tasks/order-retrial-task.ts:53:23)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Task.handleOverLapping (/home/ibrahim/apps/sterling-integration-api/src/tasks/task.ts:87:17)"
+      }
+    ],
+    "inc_5ea9e31d10ee": [
+      {
+        "id": "inc_5ea9e31d10ee_e0",
+        "incidentId": "inc_5ea9e31d10ee",
+        "timestamp": "2026-05-16T23:51:08Z",
+        "level": "error",
+        "message": "Unknown column 'Location.Provider' in 'field list'",
+        "code": "GeneralError",
+        "module": "src/tasks/order-retrial-task.ts",
+        "stack": "Error: Unknown column 'Location.Provider' in 'field list'\n    at handle (/home/ibrahim/apps/sterling-integration-api/src/tasks/order-retrial-task.ts:53:23)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Task.handleOverLapping (/home/ibrahim/apps/sterling-integration-api/src/tasks/task.ts:87:17)"
+      },
+      {
+        "id": "inc_5ea9e31d10ee_e1",
+        "incidentId": "inc_5ea9e31d10ee",
+        "timestamp": "2026-05-16T23:51:08Z",
+        "level": "error",
+        "message": "Unknown column 'Location.Provider' in 'field list'",
+        "code": "GeneralError",
+        "module": "src/tasks/order-retrial-task.ts",
+        "stack": "Error: Unknown column 'Location.Provider' in 'field list'\n    at handle (/home/ibrahim/apps/sterling-integration-api/src/tasks/order-retrial-task.ts:53:23)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Task.handleOverLapping (/home/ibrahim/apps/sterling-integration-api/src/tasks/task.ts:87:17)"
+      }
+    ],
+    "inc_60ba4b2daa4e": [
+      {
+        "id": "inc_60ba4b2daa4e_e0",
+        "incidentId": "inc_60ba4b2daa4e",
+        "timestamp": "2026-04-23T16:23:27Z",
+        "level": "error",
+        "message": "{",
+        "code": "SterlingError",
+        "module": "unknown",
+        "stack": ""
+      },
+      {
+        "id": "inc_60ba4b2daa4e_e1",
+        "incidentId": "inc_60ba4b2daa4e",
+        "timestamp": "2026-04-23T16:23:27Z",
+        "level": "error",
+        "message": "{",
+        "code": "SterlingError",
+        "module": "unknown",
+        "stack": ""
+      }
+    ],
+    "inc_bc30a5b92890": [
+      {
+        "id": "inc_bc30a5b92890_e0",
+        "incidentId": "inc_bc30a5b92890",
+        "timestamp": "2026-05-04T12:00:01Z",
+        "level": "error",
+        "message": "Error: connect ETIMEDOUT 150.171.110.114:443",
+        "code": "SterlingError",
+        "module": "src/services/integrations/sterling-scheduling-service.ts",
+        "stack": "Error: Error: connect ETIMEDOUT 150.171.110.114:443\n    at SterlingSchedulingService.requestAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:115:27)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at SterlingSchedulingService.getLocationByExternalId (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:47:24)\n    at UpdateOrderLocationsTask.getSterlingLocationsByExternalIds (/home/ibrahim/apps/sterling-integration-api/src/tasks/update-order-locations-task.ts:"
+      },
+      {
+        "id": "inc_bc30a5b92890_e1",
+        "incidentId": "inc_bc30a5b92890",
+        "timestamp": "2026-05-04T14:11:43Z",
+        "level": "error",
+        "message": "Error: connect ETIMEDOUT 150.171.109.83:443",
+        "code": "SterlingError",
+        "module": "src/services/integrations/sterling-scheduling-service.ts",
+        "stack": "Error: Error: connect ETIMEDOUT 150.171.109.83:443\n    at SterlingSchedulingService.requestAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:115:27)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at SterlingSchedulingService.getLocationByExternalId (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-scheduling-service.ts:47:24)\n    at UpdateOrderLocationsTask.getSterlingLocationsByExternalIds (/home/ibrahim/apps/sterling-integration-api/src/tasks/update-order-locations-task.ts:6"
+      }
+    ],
+    "inc_d385961619b6": [
+      {
+        "id": "inc_d385961619b6_e0",
+        "incidentId": "inc_d385961619b6",
+        "timestamp": "2026-04-23T16:23:27Z",
+        "level": "error",
+        "message": "Cannot read properties of undefined (reading 'access_token')",
+        "code": null,
+        "module": "src/services/integrations/sterling-service.ts",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'access_token')\n    at SterlingService.getTokenAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-service.ts:138:65)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at SterlingService.requestAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-service.ts:110:21)\n    at SterlingService.trackOrderAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-service.ts:23:49)\n    at OrderService.trackSterlingOrders (/home"
+      },
+      {
+        "id": "inc_d385961619b6_e1",
+        "incidentId": "inc_d385961619b6",
+        "timestamp": "2026-04-23T16:23:27Z",
+        "level": "error",
+        "message": "Cannot read properties of undefined (reading 'access_token')",
+        "code": null,
+        "module": "src/services/integrations/sterling-service.ts",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'access_token')\n    at SterlingService.getTokenAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-service.ts:138:65)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at SterlingService.requestAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-service.ts:110:21)\n    at SterlingService.trackOrderAsync (/home/ibrahim/apps/sterling-integration-api/src/services/integrations/sterling-service.ts:23:49)\n    at OrderService.trackSterlingOrders (/home"
+      }
+    ]
+  },
+  "stats": {
+    "total": 10,
+    "bySeverity": {
+      "Critical": 1,
+      "High": 6,
+      "Medium": 2,
+      "Low": 1
+    },
+    "byStatus": {
+      "New": 8,
+      "Investigating": 1,
+      "Resolved": 1
+    },
+    "topIncidents": [
+      {
+        "id": "inc_d385961619b6",
+        "title": "Sterling auth token missing from integration response",
+        "occurrences": 661
+      },
+      {
+        "id": "inc_5ea9e31d10ee",
+        "title": "Schema drift: column `Location.Provider` missing from database",
+        "occurrences": 106
+      },
+      {
+        "id": "inc_2bd6eeeaca80",
+        "title": "Schema drift: column `Order.OrderNetworkTypeId` missing from database",
+        "occurrences": 58
+      },
+      {
+        "id": "inc_1d3209ec94b1",
+        "title": "Location lookup failing for unknown or null external IDs",
+        "occurrences": 39
+      },
+      {
+        "id": "inc_2ab9bebf3cf8",
+        "title": "Scheduling search called without coordinates or search term",
+        "occurrences": 18
+      }
+    ],
+    "trend": [
+      {
+        "date": "2026-04-23",
+        "count": 3
+      },
+      {
+        "date": "2026-05-04",
+        "count": 667
+      },
+      {
+        "date": "2026-05-16",
+        "count": 107
+      },
+      {
+        "date": "2026-05-19",
+        "count": 1
+      },
+      {
+        "date": "2026-05-20",
+        "count": 115
+      }
+    ]
+  }
+}
