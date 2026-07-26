@@ -1,10 +1,17 @@
 import * as Notifications from 'expo-notifications';
 import { apiClient } from '@/api/client';
 import type { Incident } from '@/api/types';
+import { createPollController } from './pollController';
 
 const POLL_MS = 15000;
-let interval: ReturnType<typeof setInterval> | null = null;
 let previousUrgentIds = new Set<string>();
+const pollController = createPollController(
+  {
+    set: (callback, intervalMs) => setInterval(callback, intervalMs),
+    clear: (handle) => clearInterval(handle)
+  },
+  POLL_MS
+);
 
 export interface NotificationPort {
   notifyIncident(incident: Incident): Promise<void>;
@@ -32,7 +39,7 @@ export const expoNotificationPort: NotificationPort = {
   }
 };
 
-async function pollOnce(token: string | null, port: NotificationPort) {
+async function pollOnce(token: string, port: NotificationPort) {
   const response = await apiClient.listIncidents({ sort: 'severity', order: 'desc' }, token);
   const urgent = response.items.filter((incident) => incident.severity === 'Critical' || incident.severity === 'High');
   const nextIds = new Set(urgent.map((incident) => incident.id));
@@ -47,19 +54,10 @@ async function pollOnce(token: string | null, port: NotificationPort) {
 }
 
 export function startIncidentPolling(token: string | null, port: NotificationPort = expoNotificationPort) {
-  if (interval) {
-    clearInterval(interval);
-  }
-
-  pollOnce(token, port).catch(() => undefined);
-  interval = setInterval(() => {
-    pollOnce(token, port).catch(() => undefined);
-  }, POLL_MS);
+  const cleanup = pollController.start(token, (activeToken) => pollOnce(activeToken, port));
 
   return () => {
-    if (interval) {
-      clearInterval(interval);
-      interval = null;
-    }
+    cleanup();
+    previousUrgentIds = new Set();
   };
 }
