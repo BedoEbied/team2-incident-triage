@@ -3,6 +3,7 @@ import { BarChart, DonutChart, LineChart } from '@mantine/charts';
 import type { Stats } from '../api/types';
 import { CHART_SERIES, STATUS_COLORS } from '../theme/tokens';
 import { formatUtcDateLabel } from '../utils/date';
+import { buildTopIncidentChartData } from './analyticsData';
 
 export function AnalyticsRow({ stats }: { stats: Stats }) {
   const { colorScheme } = useMantineColorScheme();
@@ -19,11 +20,8 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
     count,
     color: STATUS_COLORS[status as keyof typeof STATUS_COLORS][scheme],
   }));
-  const topData = stats.topIncidents.map((incident, index) => ({
-    title: incident.title.replace('Schema drift: ', ''),
-    occurrences: incident.occurrences,
-    color: series[index % series.length],
-  }));
+  const topData = buildTopIncidentChartData(stats.topIncidents, series);
+  const topIncidentTitles = new Map(topData.map(({ id, title }) => [id, title]));
   const trendData = stats.trend.map((bucket) => ({
     ...bucket,
     date: formatUtcDateLabel(bucket.date),
@@ -67,11 +65,17 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
           <BarChart
             h={150}
             data={topData}
-            dataKey="title"
+            dataKey="id"
             series={[{ name: 'occurrences', color: series[0] }]}
             withLegend={false}
             tickLine="none"
             gridAxis="x"
+            xAxisProps={{
+              tickFormatter: (id: string) => topIncidentTitles.get(id) ?? id,
+            }}
+            tooltipProps={{
+              labelFormatter: (id) => topIncidentTitles.get(String(id)) ?? id,
+            }}
           />
         </Stack>
       </Grid.Col>
