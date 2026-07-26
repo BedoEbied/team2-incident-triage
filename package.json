@@ -1,0 +1,29 @@
+{
+  "name": "triage-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 3000"
+  },
+  "dependencies": {
+    "@mantine/charts": "^8.3.14",
+    "@mantine/core": "^8.3.14",
+    "@mantine/dates": "^8.3.14",
+    "@mantine/hooks": "^8.3.14",
+    "@tanstack/react-query": "^5.83.0",
+    "@vitejs/plugin-react": "^4.6.0",
+    "dayjs": "^1.11.13",
+    "recharts": "^3.1.0",
+    "vite": "^7.0.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "typescript": "^5.8.3"
+  }
+}

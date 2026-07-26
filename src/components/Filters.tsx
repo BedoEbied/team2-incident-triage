@@ -1,0 +1,82 @@
+import { Group, MultiSelect, Select, TextInput } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
+import type { Incident, IncidentQuery, SortField } from '../api/types';
+import { SEVERITIES, STATUSES } from '../api/types';
+
+type Range = [string | null, string | null];
+
+export function Filters({
+  query,
+  range,
+  modules,
+  onQueryChange,
+  onRangeChange,
+}: {
+  query: IncidentQuery;
+  range: Range;
+  modules: string[];
+  onQueryChange: (query: IncidentQuery) => void;
+  onRangeChange: (range: Range) => void;
+}) {
+  const update = (patch: IncidentQuery) => onQueryChange({ ...query, ...patch });
+
+  return (
+    <Group gap="xs" align="end" wrap="wrap">
+      <TextInput
+        label="Search"
+        placeholder="Title or summary"
+        value={query.q ?? ''}
+        onChange={(event) => update({ q: event.currentTarget.value })}
+        w={260}
+      />
+      <MultiSelect
+        label="Severity"
+        data={SEVERITIES}
+        value={query.severity ?? []}
+        onChange={(value) => update({ severity: value as Incident['severity'][] })}
+        clearable
+        w={190}
+      />
+      <MultiSelect
+        label="Status"
+        data={STATUSES}
+        value={query.status ?? []}
+        onChange={(value) => update({ status: value as Incident['status'][] })}
+        clearable
+        w={210}
+      />
+      <Select
+        label="Module"
+        data={modules}
+        value={query.module ?? null}
+        onChange={(value) => update({ module: value ?? undefined })}
+        clearable
+        searchable
+        w={260}
+      />
+      <DatePickerInput
+        type="range"
+        label="Last seen"
+        placeholder="Date range"
+        value={range}
+        onChange={(value) => {
+          onRangeChange(value);
+          update({ from: value[0] ?? undefined, to: value[1] ?? undefined });
+        }}
+        clearable
+        w={230}
+      />
+      <Select
+        label="Sort"
+        data={[
+          { value: 'severity', label: 'Severity' },
+          { value: 'occurrences', label: 'Occurrences' },
+          { value: 'lastSeen', label: 'Last seen' },
+        ]}
+        value={query.sort ?? 'severity'}
+        onChange={(value) => update({ sort: (value ?? 'severity') as SortField })}
+        w={150}
+      />
+    </Group>
+  );
+}

@@ -1,0 +1,23 @@
+import '@mantine/core/styles.css';
+import '@mantine/charts/styles.css';
+import '@mantine/dates/styles.css';
+import './styles.css';
+
+import { MantineProvider } from '@mantine/core';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Dashboard } from './pages/Dashboard';
+import { theme } from './theme/theme';
+
+const queryClient = new QueryClient();
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <MantineProvider defaultColorScheme="light" theme={theme}>
+      <QueryClientProvider client={queryClient}>
+        <Dashboard />
+      </QueryClientProvider>
+    </MantineProvider>
+  </StrictMode>,
+);

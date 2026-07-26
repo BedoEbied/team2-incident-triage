@@ -1,0 +1,60 @@
+:root {
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-size: 13px;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background: var(--triage-page);
+  color: var(--triage-text);
+}
+
+.surface {
+  background: var(--triage-surface);
+  border: 1px solid var(--triage-border);
+  border-radius: 4px;
+}
+
+.mono {
+  font-family: var(--triage-mono);
+}
+
+.incident-row {
+  height: 38px;
+  cursor: pointer;
+}
+
+.incident-row:hover {
+  background: light-dark(#f1f3f5, #202124);
+}
+
+.incident-row--accent {
+  background: var(--triage-accent-row);
+}
+
+.incident-row--accent td:first-child {
+  border-left: 3px solid var(--severity-accent);
+}
+
+.compact-card {
+  padding: 12px;
+}
+
+.chart-box {
+  height: 170px;
+}
