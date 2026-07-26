@@ -1,6 +1,7 @@
 import {
   ActionIcon,
   Box,
+  Button,
   Container,
   Group,
   Loader,
@@ -12,7 +13,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import type { CSSProperties } from 'react';
 import { useMemo, useState } from 'react';
-import { getIncidents, getStats } from '../api/client';
+import { getIncidents, getStats, USE_MOCK } from '../api/client';
+import { getErrorMessage } from '../api/errors';
 import type { Incident, IncidentQuery } from '../api/types';
 import { AnalyticsRow } from '../components/AnalyticsRow';
 import { DetailDrawer } from '../components/DetailDrawer';
@@ -86,6 +88,15 @@ export function Dashboard() {
     const values = allIncidentsQuery.data?.items.map((incident) => incident.module) ?? [];
     return Array.from(new Set(values)).sort();
   }, [allIncidentsQuery.data]);
+  const visibleIncidents = incidentsQuery.data?.items ?? [];
+  const hasActiveFilters = Boolean(
+    query.q?.trim() ||
+      query.severity?.length ||
+      query.status?.length ||
+      query.module ||
+      query.from ||
+      query.to,
+  );
 
   return (
     <Box
@@ -121,7 +132,29 @@ export function Dashboard() {
             </Group>
           </Group>
 
-          {statsQuery.data && <AnalyticsRow stats={statsQuery.data} />}
+          {statsQuery.isLoading ? (
+            <Group className="surface compact-card" role="status" gap="xs">
+              <Loader color="gray" size="sm" />
+              <Text size="sm">Loading analytics…</Text>
+            </Group>
+          ) : statsQuery.isError ? (
+            <Group className="surface compact-card" role="alert" justify="space-between">
+              <Text size="sm">{getErrorMessage(statsQuery.error)}</Text>
+              <Button
+                variant="default"
+                size="xs"
+                onClick={() => statsQuery.refetch()}
+              >
+                Retry analytics
+              </Button>
+            </Group>
+          ) : statsQuery.data && statsQuery.data.total > 0 ? (
+            <AnalyticsRow stats={statsQuery.data} />
+          ) : (
+            <Box className="surface compact-card" role="status">
+              <Text size="sm">No analytics data is available.</Text>
+            </Box>
+          )}
 
           <Box className="surface compact-card">
             <Filters
@@ -135,20 +168,46 @@ export function Dashboard() {
 
           <Group justify="space-between">
             <Text size="xs" c="dimmed">
-              {incidentsQuery.data?.total ?? 0} visible incidents
+              {incidentsQuery.isLoading
+                ? 'Loading incident count…'
+                : incidentsQuery.isError
+                  ? 'Incident count unavailable'
+                  : `${visibleIncidents.length} visible ${
+                      visibleIncidents.length === 1 ? 'incident' : 'incidents'
+                    }`}
             </Text>
             <Text size="xs" c="dimmed" className="mono">
-              mock mode
+              {USE_MOCK ? 'mock mode' : 'live api'}
             </Text>
           </Group>
 
           {incidentsQuery.isLoading ? (
-            <Group justify="center" py="xl">
-              <Loader color="gray" />
+            <Group className="surface compact-card" justify="center" py="xl" role="status">
+              <Loader color="gray" size="sm" />
+              <Text size="sm">Loading incidents…</Text>
             </Group>
+          ) : incidentsQuery.isError ? (
+            <Group className="surface compact-card" role="alert" justify="space-between">
+              <Text size="sm">{getErrorMessage(incidentsQuery.error)}</Text>
+              <Button
+                variant="default"
+                size="xs"
+                onClick={() => incidentsQuery.refetch()}
+              >
+                Retry incidents
+              </Button>
+            </Group>
+          ) : visibleIncidents.length === 0 ? (
+            <Box className="surface compact-card" role="status">
+              <Text size="sm">
+                {hasActiveFilters
+                  ? 'No incidents match these filters.'
+                  : 'No incidents are available.'}
+              </Text>
+            </Box>
           ) : (
             <IncidentTable
-              incidents={incidentsQuery.data?.items ?? []}
+              incidents={visibleIncidents}
               onSelect={(incident) => setSelected(incident)}
             />
           )}

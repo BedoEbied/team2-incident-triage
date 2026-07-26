@@ -2,7 +2,8 @@ import { Box, Button, FileButton, Group, Progress, Text } from '@mantine/core';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { DragEvent } from 'react';
 import { useState } from 'react';
-import { getErrorMessage, getUploadJob, uploadFiles } from '../api/client';
+import { getUploadJob, uploadFiles } from '../api/client';
+import { getErrorMessage } from '../api/errors';
 
 export function UploadBar() {
   const [jobId, setJobId] = useState<string | null>(null);
@@ -10,8 +11,11 @@ export function UploadBar() {
 
   const mutation = useMutation({
     mutationFn: uploadFiles,
-    onSuccess: ({ jobId }) => {
+    onMutate: () => {
       setError(null);
+      setJobId(null);
+    },
+    onSuccess: ({ jobId }) => {
       setJobId(jobId);
     },
     onError: (error) => setError(getErrorMessage(error)),
@@ -26,6 +30,11 @@ export function UploadBar() {
       return status === 'done' || status === 'failed' ? false : 900;
     },
   });
+  const jobError = jobQuery.isError
+    ? getErrorMessage(jobQuery.error)
+    : jobQuery.data?.status === 'failed'
+      ? jobQuery.data.error ?? 'Log processing failed. Try uploading the files again.'
+      : null;
 
   const handleFiles = (files: File[] | null) => {
     if (!files?.length) return;
@@ -53,19 +62,24 @@ export function UploadBar() {
             </Button>
           )}
         </FileButton>
-        <Text size="xs" c="dimmed">multi-file, repeatable `files` field</Text>
+        <Text size="xs" c="dimmed">Drop or select .log, .txt, or .json files</Text>
       </Group>
       {jobQuery.data && (
         <Group gap="xs" mt={6} align="center">
-          <Progress value={jobQuery.data.progress} size="sm" w={180} />
+          <Progress
+            aria-label="Upload progress"
+            value={jobQuery.data.progress}
+            size="sm"
+            w={180}
+          />
           <Text size="xs" c="dimmed" className="mono">
             {jobQuery.data.status} {jobQuery.data.progress}%
           </Text>
         </Group>
       )}
-      {error && (
-        <Box className="surface" mt={6} px="xs" py={6}>
-          <Text size="xs">{error}</Text>
+      {(error || jobError) && (
+        <Box className="surface" mt={6} px="xs" py={6} role="alert">
+          <Text size="xs">{error ?? jobError}</Text>
         </Box>
       )}
     </Box>
