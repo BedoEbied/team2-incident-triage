@@ -1,7 +1,7 @@
 import { Box, ScrollArea, Table, Text, useMantineColorScheme } from '@mantine/core';
 import type { CSSProperties } from 'react';
 import type { Incident } from '../api/types';
-import { SEVERITY_COLORS } from '../theme/tokens';
+import { DENSITY, SEVERITY_COLORS } from '../theme/tokens';
 import { formatUtcTimestamp } from '../utils/date';
 import { SeverityBadge } from './SeverityBadge';
 import { StatusPill } from './StatusPill';
@@ -24,8 +24,19 @@ export function IncidentTable({
           verticalSpacing={0}
           highlightOnHover={false}
           styles={{
-            th: { height: 34, fontSize: 12, color: 'var(--triage-dim)', fontWeight: 650 },
-            td: { height: 38, fontSize: 13, borderColor: 'var(--triage-border)' },
+            th: {
+              height: 36,
+              fontSize: DENSITY.headerFontSize,
+              color: 'var(--triage-dim)',
+              fontWeight: 600,
+              letterSpacing: '0.045em',
+              textTransform: 'uppercase',
+            },
+            td: {
+              height: DENSITY.rowHeight,
+              fontSize: DENSITY.fontSize,
+              borderColor: 'var(--triage-border)',
+            },
           }}
         >
           <Table.Thead>

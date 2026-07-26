@@ -70,7 +70,7 @@ export function DetailDrawer({
       )}
       {incident && detailQuery.isLoading && (
         <Group justify="center" py="xl" role="status">
-          <Loader color="gray" size="sm" />
+          <Loader color="brand" size="sm" />
           <Text size="sm">Loading incident details…</Text>
         </Group>
       )}
@@ -121,9 +121,9 @@ export function DetailDrawer({
 
           <Divider />
           <Stack gap={6}>
-            <Text fw={650}>Explanation</Text>
+            <Text className="section-heading">Explanation</Text>
             <Text size="sm">{detail.rootCause}</Text>
-            <Text fw={650}>Remediation</Text>
+            <Text className="section-heading">Remediation</Text>
             <Text size="sm">{detail.remediation}</Text>
           </Stack>
 
@@ -193,9 +193,9 @@ export function DetailDrawer({
           </Stack>
 
           <Stack gap={6}>
-            <Text fw={650}>Raw log entries</Text>
+            <Text className="section-heading">Raw log entries</Text>
             {detail.entries.length > 0 ? (
-              <ScrollArea h={280} className="surface" p="sm">
+              <ScrollArea h={280} className="surface log-panel" p="sm">
                 <Stack gap="sm">
                   {detail.entries.map((entry) => (
                     <Text

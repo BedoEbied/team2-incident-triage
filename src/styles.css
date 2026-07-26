@@ -1,15 +1,37 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+
+[data-mantine-color-scheme='dark'] {
+  color-scheme: dark;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
+  background: var(--triage-page);
+  color: var(--triage-text);
+  font-family: var(
+    --triage-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif
+  );
   font-size: 13px;
   overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
 }
 
 button,
@@ -27,31 +49,86 @@ select {
   color: var(--triage-text);
 }
 
+.dashboard-header {
+  min-width: 0;
+}
+
+.brand-lockup {
+  min-width: 0;
+}
+
+.brand-mark {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 2px;
+  background: var(--triage-lime);
+}
+
+.page-title {
+  min-width: 0;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+
+.dashboard-actions {
+  flex: 0 1 auto;
+}
+
 .surface {
   background: var(--triage-surface);
   border: 1px solid var(--triage-border);
-  border-radius: 4px;
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.upload-bar,
+.log-panel {
+  border-radius: 8px;
 }
 
 .mono {
   font-family: var(--triage-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.section-heading {
+  color: var(--triage-text);
+  font-family: var(--triage-display);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.stat-number {
+  margin-block: 5px 3px;
+  font-family: var(--triage-display);
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.025em;
 }
 
 .incident-row {
-  height: 38px;
+  height: 40px;
   cursor: pointer;
+  transition: background-color 120ms ease-out;
 }
 
 .incident-row:focus-visible {
-  outline: 2px solid var(--triage-text);
+  outline: 2px solid var(--triage-focus);
   outline-offset: -2px;
 }
 
 .incident-row:hover {
-  background: light-dark(#f1f3f5, #202124);
+  background: var(--triage-surface-alt);
 }
 
 .incident-row--accent {
+  background: var(--triage-accent-row);
+}
+
+.incident-row--accent:hover {
   background: var(--triage-accent-row);
 }
 
@@ -60,7 +137,7 @@ select {
 }
 
 .compact-card {
-  padding: 12px;
+  padding: 14px;
 }
 
 .filter-control {
@@ -76,8 +153,90 @@ select {
   flex-basis: 140px;
 }
 
+.mantine-InputWrapper-label {
+  color: var(--triage-dim);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.mantine-Input-input {
+  --input-bd: var(--triage-border);
+  --input-bd-focus: var(--triage-focus);
+  --input-bg: var(--triage-surface);
+  --input-color: var(--triage-text);
+
+  border-radius: 8px;
+}
+
+.mantine-Button-root,
+.mantine-ActionIcon-root {
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.mantine-ActionIcon-root:hover {
+  color: var(--triage-blue);
+}
+
+.mantine-Button-root:focus-visible,
+.mantine-ActionIcon-root:focus-visible,
+.mantine-Input-input:focus-visible,
+.mantine-Drawer-close:focus-visible {
+  outline: 2px solid var(--triage-focus);
+  outline-offset: 2px;
+}
+
+.mantine-Combobox-dropdown,
+.mantine-Popover-dropdown {
+  background: var(--triage-surface);
+  border-color: var(--triage-border);
+  box-shadow: none;
+}
+
+.mantine-Combobox-option[data-combobox-selected] {
+  background: var(--triage-blue);
+  color: var(--mantine-color-white);
+}
+
+.mantine-Drawer-content,
+.mantine-Drawer-header {
+  background: var(--triage-surface);
+  color: var(--triage-text);
+}
+
+.mantine-Drawer-content {
+  box-shadow: none;
+}
+
+.mantine-Drawer-header {
+  border-bottom: 1px solid var(--triage-border);
+}
+
+.mantine-Drawer-title {
+  font-family: var(--triage-display);
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.mantine-Divider-root {
+  border-color: var(--triage-border);
+}
+
+.recharts-cartesian-grid line {
+  stroke: var(--triage-border);
+}
+
+.recharts-text {
+  fill: var(--triage-dim);
+  font-family: var(--triage-ui);
+  font-size: 11px;
+}
+
 .log-entry {
   min-width: 0;
+  color: var(--triage-text);
+  line-height: 1.55;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -86,4 +245,47 @@ select {
 .break-anywhere {
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+@media (max-width: 48rem) {
+  .dashboard-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dashboard-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .upload-bar {
+    flex: 1 1 auto;
+  }
+
+  .compact-card {
+    padding: 12px;
+  }
+
+  .filter-control,
+  .filter-control--wide,
+  .filter-control--narrow {
+    flex-basis: calc(50% - 4px);
+  }
+}
+
+@media (max-width: 34rem) {
+  .dashboard-actions {
+    align-items: flex-start;
+  }
+
+  .upload-bar .mantine-Group-root {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .filter-control,
+  .filter-control--wide,
+  .filter-control--narrow {
+    flex-basis: 100%;
+  }
 }

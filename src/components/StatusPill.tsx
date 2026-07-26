@@ -1,6 +1,6 @@
 import { Badge, useMantineColorScheme } from '@mantine/core';
 import type { Status } from '../api/types';
-import { STATUS_COLORS } from '../theme/tokens';
+import { RADIUS, STATUS_COLORS } from '../theme/tokens';
 
 export function StatusPill({ status }: { status: Status }) {
   const { colorScheme } = useMantineColorScheme();
@@ -10,7 +10,7 @@ export function StatusPill({ status }: { status: Status }) {
   return (
     <Badge
       variant="outline"
-      radius={4}
+      radius={RADIUS.control}
       size="sm"
       styles={{
         root: {

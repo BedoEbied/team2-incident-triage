@@ -50,14 +50,14 @@ export function UploadBar() {
     <Box
       onDragOver={(event) => event.preventDefault()}
       onDrop={handleDrop}
-      className="surface"
+      className="surface upload-bar"
       px="xs"
       py={6}
     >
       <Group gap="xs" align="center">
         <FileButton onChange={handleFiles} multiple>
           {(props) => (
-            <Button {...props} variant="default" size="xs" loading={mutation.isPending}>
+            <Button {...props} variant="filled" size="xs" loading={mutation.isPending}>
               Upload logs
             </Button>
           )}
@@ -69,6 +69,7 @@ export function UploadBar() {
           <Progress
             aria-label="Upload progress"
             value={jobQuery.data.progress}
+            color="brand"
             size="sm"
             w={180}
           />

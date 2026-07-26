@@ -29,21 +29,21 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
   return (
     <Grid gutter="sm">
       <Grid.Col span={{ base: 12, md: 2 }}>
-        <Stack className="surface compact-card" gap={4} h="100%">
-          <Text c="dimmed" size="xs" fw={650}>Total incidents</Text>
-          <Title order={1} className="mono">{stats.total}</Title>
+        <Stack className="surface compact-card stat-card" gap={4} h="100%">
+          <Text className="section-heading">Total incidents</Text>
+          <Title order={1} className="stat-number">{stats.total}</Title>
           <Text c="dimmed" size="xs">Grouped from uploaded logs</Text>
         </Stack>
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 3 }}>
         <Stack className="surface compact-card" gap={8}>
-          <Text c="dimmed" size="xs" fw={650}>By severity</Text>
+          <Text className="section-heading">By severity</Text>
           <DonutChart h={150} data={severityData} size={130} thickness={18} withLabels={false} />
         </Stack>
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 3 }}>
         <Stack className="surface compact-card" gap={8}>
-          <Text c="dimmed" size="xs" fw={650}>By status</Text>
+          <Text className="section-heading">By status</Text>
           <BarChart
             h={150}
             data={statusData}
@@ -52,13 +52,16 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
             withLegend={false}
             tickLine="none"
             gridAxis="none"
+            yAxisProps={{
+              tick: { fontFamily: FONT_MONO },
+            }}
           />
         </Stack>
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 4 }}>
         <Stack className="surface compact-card" gap={8}>
           <Group justify="space-between">
-            <Text c="dimmed" size="xs" fw={650}>Top incident types</Text>
+            <Text className="section-heading">Top incident types</Text>
             <Text c="dimmed" size="xs">Occurrences</Text>
           </Group>
           <BarChart
@@ -72,6 +75,9 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
             xAxisProps={{
               tickFormatter: (id: string) => topIncidentTitles.get(id) ?? id,
             }}
+            yAxisProps={{
+              tick: { fontFamily: FONT_MONO },
+            }}
             tooltipProps={{
               labelFormatter: (id) => topIncidentTitles.get(String(id)) ?? id,
             }}
@@ -80,7 +86,7 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
       </Grid.Col>
       <Grid.Col span={12}>
         <Stack className="surface compact-card" gap={8}>
-          <Text c="dimmed" size="xs" fw={650}>Trend by UTC date</Text>
+          <Text className="section-heading">Trend by UTC date</Text>
           <LineChart
             h={150}
             data={trendData}
@@ -91,6 +97,9 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
             tickLine="none"
             gridAxis="xy"
             xAxisProps={{
+              tick: { fontFamily: FONT_MONO },
+            }}
+            yAxisProps={{
               tick: { fontFamily: FONT_MONO },
             }}
           />

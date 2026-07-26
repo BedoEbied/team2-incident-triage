@@ -11,7 +11,6 @@ import {
   useMantineColorScheme,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import type { CSSProperties } from 'react';
 import { useMemo, useState } from 'react';
 import { getIncidents, getStats, USE_MOCK } from '../api/client';
 import { getErrorMessage } from '../api/errors';
@@ -21,7 +20,7 @@ import { DetailDrawer } from '../components/DetailDrawer';
 import { Filters } from '../components/Filters';
 import { IncidentTable } from '../components/IncidentTable';
 import { UploadBar } from '../components/UploadBar';
-import { CANVAS, DENSITY, FONT_MONO } from '../theme/tokens';
+import { DENSITY } from '../theme/tokens';
 
 type Range = [string | null, string | null];
 
@@ -66,7 +65,6 @@ function ThemeIcon({ scheme }: { scheme: 'light' | 'dark' }) {
 export function Dashboard() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const scheme = colorScheme === 'dark' ? 'dark' : 'light';
-  const canvas = CANVAS[scheme];
   const [query, setQuery] = useState<IncidentQuery>({ sort: 'severity', order: 'desc' });
   const [range, setRange] = useState<Range>([null, null]);
   const [selected, setSelected] = useState<Incident | null>(null);
@@ -99,26 +97,23 @@ export function Dashboard() {
   );
 
   return (
-    <Box
-      className="app-shell"
-      style={{
-        '--triage-page': canvas.page,
-        '--triage-surface': canvas.surface,
-        '--triage-border': canvas.border,
-        '--triage-text': canvas.text,
-        '--triage-dim': canvas.textDim,
-        '--triage-accent-row': canvas.accentRow,
-        '--triage-mono': FONT_MONO,
-      } as CSSProperties}
-    >
+    <Box className="app-shell">
       <Container size="xl" py={DENSITY.sectionGap}>
         <Stack gap={DENSITY.sectionGap}>
-          <Group justify="space-between" align="start">
-            <Stack gap={2}>
-              <Title order={1}>Incident Triage</Title>
+          <Group
+            className="dashboard-header"
+            justify="space-between"
+            align="center"
+            wrap="nowrap"
+          >
+            <Stack gap={3}>
+              <Group className="brand-lockup" gap={8} wrap="nowrap">
+                <span className="brand-mark" aria-hidden="true" />
+                <Title order={1} className="page-title">Incident Triage</Title>
+              </Group>
               <Text size="xs" c="dimmed">AI grouped logs for on-call response</Text>
             </Stack>
-            <Group align="start" gap="sm">
+            <Group className="dashboard-actions" align="center" gap="sm" wrap="nowrap">
               <UploadBar />
               <ActionIcon
                 variant="default"
@@ -134,7 +129,7 @@ export function Dashboard() {
 
           {statsQuery.isLoading ? (
             <Group className="surface compact-card" role="status" gap="xs">
-              <Loader color="gray" size="sm" />
+              <Loader color="brand" size="sm" />
               <Text size="sm">Loading analytics…</Text>
             </Group>
           ) : statsQuery.isError ? (
@@ -183,7 +178,7 @@ export function Dashboard() {
 
           {incidentsQuery.isLoading ? (
             <Group className="surface compact-card" justify="center" py="xl" role="status">
-              <Loader color="gray" size="sm" />
+              <Loader color="brand" size="sm" />
               <Text size="sm">Loading incidents…</Text>
             </Group>
           ) : incidentsQuery.isError ? (

@@ -1,6 +1,6 @@
 import { Badge, useMantineColorScheme } from '@mantine/core';
 import type { Severity } from '../api/types';
-import { SEVERITY_COLORS } from '../theme/tokens';
+import { RADIUS, SEVERITY_COLORS } from '../theme/tokens';
 
 export function SeverityBadge({ severity }: { severity: Severity }) {
   const { colorScheme } = useMantineColorScheme();
@@ -10,7 +10,7 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
   return (
     <Badge
       variant="outline"
-      radius={4}
+      radius={RADIUS.control}
       size="sm"
       styles={{
         root: {
