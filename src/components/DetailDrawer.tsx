@@ -1,8 +1,10 @@
 import {
+  Box,
   Button,
   Divider,
   Drawer,
   Group,
+  Loader,
   ScrollArea,
   Select,
   Stack,
@@ -13,6 +15,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { addNote, getIncident, patchIncident } from '../api/client';
+import { getErrorMessage } from '../api/errors';
 import type { Incident, Status } from '../api/types';
 import { STATUSES } from '../api/types';
 import { FONT_MONO } from '../theme/tokens';
@@ -62,7 +65,34 @@ export function DetailDrawer({
 
   return (
     <Drawer opened={opened} onClose={onClose} position="right" size="xl" title="Incident detail">
-      {detail && (
+      {!incident && (
+        <Text size="sm" role="status">No incident is selected.</Text>
+      )}
+      {incident && detailQuery.isLoading && (
+        <Group justify="center" py="xl" role="status">
+          <Loader color="gray" size="sm" />
+          <Text size="sm">Loading incident details…</Text>
+        </Group>
+      )}
+      {incident && detailQuery.isError && (
+        <Group role="alert" justify="space-between">
+          <Text size="sm">{getErrorMessage(detailQuery.error)}</Text>
+          <Button
+            variant="default"
+            size="xs"
+            onClick={() => detailQuery.refetch()}
+          >
+            Retry details
+          </Button>
+        </Group>
+      )}
+      {incident &&
+        !detailQuery.isLoading &&
+        !detailQuery.isError &&
+        !detail && (
+          <Text size="sm" role="status">No incident details are available.</Text>
+        )}
+      {detail && !detailQuery.isError && (
         <Stack gap="md">
           <Stack gap={6}>
             <Group gap="xs">
@@ -122,6 +152,11 @@ export function DetailDrawer({
             onChange={(value) => value && statusMutation.mutate(value as Status)}
             disabled={statusMutation.isPending}
           />
+          {statusMutation.isError && (
+            <Text size="xs" role="alert">
+              {getErrorMessage(statusMutation.error)}
+            </Text>
+          )}
 
           <Stack gap={6}>
             <Textarea
@@ -147,26 +182,41 @@ export function DetailDrawer({
                 {activity.actor}: {activity.body}
               </Text>
             ))}
+            {detail.history.length === 0 && (
+              <Text size="xs" c="dimmed">No activity has been recorded.</Text>
+            )}
+            {noteMutation.isError && (
+              <Text size="xs" role="alert">
+                {getErrorMessage(noteMutation.error)}
+              </Text>
+            )}
           </Stack>
 
           <Stack gap={6}>
             <Text fw={650}>Raw log entries</Text>
-            <ScrollArea h={280} className="surface" p="sm">
-              <Stack gap="sm">
-                {detail.entries.map((entry) => (
-                  <Text
-                    key={entry.id}
-                    size="xs"
-                    style={{ fontFamily: FONT_MONO, whiteSpace: 'pre-wrap' }}
-                  >
-                    [{formatUtcTimestamp(entry.timestamp)}] {entry.level.toUpperCase()} {entry.module}
-                    {'\n'}
-                    {entry.message}
-                    {entry.stack ? `\n${entry.stack}` : ''}
-                  </Text>
-                ))}
-              </Stack>
-            </ScrollArea>
+            {detail.entries.length > 0 ? (
+              <ScrollArea h={280} className="surface" p="sm">
+                <Stack gap="sm">
+                  {detail.entries.map((entry) => (
+                    <Text
+                      key={entry.id}
+                      size="xs"
+                      className="log-entry"
+                      style={{ fontFamily: FONT_MONO }}
+                    >
+                      [{formatUtcTimestamp(entry.timestamp)}] {entry.level.toUpperCase()} {entry.module}
+                      {'\n'}
+                      {entry.message}
+                      {entry.stack ? `\n${entry.stack}` : ''}
+                    </Text>
+                  ))}
+                </Stack>
+              </ScrollArea>
+            ) : (
+              <Box className="surface" p="sm" role="status">
+                <Text size="xs" c="dimmed">No raw log entries are available.</Text>
+              </Box>
+            )}
           </Stack>
         </Stack>
       )}

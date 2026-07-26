@@ -9,6 +9,7 @@
 body {
   margin: 0;
   font-size: 13px;
+  overflow-x: hidden;
 }
 
 button,
@@ -20,6 +21,8 @@ select {
 
 .app-shell {
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
   background: var(--triage-page);
   color: var(--triage-text);
 }
@@ -57,4 +60,11 @@ select {
 
 .chart-box {
   height: 170px;
+}
+
+.log-entry {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
