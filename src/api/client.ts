@@ -17,7 +17,7 @@ export { applyIncidentQuery } from '@/features/incidents/query';
 
 // Phones and simulators cannot reach the host machine's localhost; replace with this machine's LAN IP when USE_MOCK is false.
 export const API_BASE = 'http://172.20.1.228:4000/api';
-export const USE_MOCK = true;
+export const USE_MOCK = false;
 
 type LoginResponse = { token: string; user: User };
 type ApiErrorCode = ApiError['error']['code'];
