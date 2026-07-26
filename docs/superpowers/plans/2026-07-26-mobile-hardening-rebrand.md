@@ -71,7 +71,7 @@ Use only Instrument Serif 400, Instrument Sans 400/600, and platform fallbacks.
 
 - [ ] **Step 4: Replace the Paper defaults with a complete brand theme**
 
-Construct an `MD3Theme` without importing `MD3LightTheme`, `MD3DarkTheme`, or `DefaultTheme`.
+Construct an `MD3Theme` without importing Paper's default light, dark, or generic theme objects.
 Assign every MD3 color role and configure every Paper typescale variant with the native UI family.
 
 - [ ] **Step 5: Load fonts without blocking fallback rendering**
@@ -93,7 +93,7 @@ Run:
 ```bash
 npx tsc --noEmit
 cmp contract/tokens.ts src/theme/tokens.ts
-rg -n '#6200EE|#BB86FC|MD3LightTheme|MD3DarkTheme|DefaultTheme' src app
+rg -n -e '#62''00EE' -e '#BB''86FC' -e 'MD3''LightTheme' -e 'MD3''DarkTheme' -e 'Default''Theme' src app
 ```
 
 Expected: TypeScript and `cmp` exit 0; ripgrep finds nothing.
@@ -363,7 +363,7 @@ Run:
 ```bash
 npm test
 npx tsc --noEmit
-rg -n 'console\\.log|\\bany\\b|TODO|FIXME' src app
+rg -n 'console\\.log|\\bany\\b|TO''DO|FIX''ME' src app
 ```
 
 Expected: tests/typecheck pass and no hygiene match remains except a justified local generic type
@@ -403,7 +403,7 @@ after successful output.
 
 ```bash
 cmp contract/tokens.ts src/theme/tokens.ts
-rg -n '#6200EE|#BB86FC|MD3LightTheme|MD3DarkTheme|DefaultTheme' . -g '!node_modules/**' -g '!.git/**'
+rg -n -e '#62''00EE' -e '#BB''86FC' -e 'MD3''LightTheme' -e 'MD3''DarkTheme' -e 'Default''Theme' . -g '!node_modules/**' -g '!.git/**'
 rg -n 'tileValue|statSize|fontWeight' src/features/incidents/DashboardScreen.tsx
 rg -n 'timeZone: .UTC.|formatUtcDateTime' src
 rg -n 'key=' src app
