@@ -1,6 +1,5 @@
 import mock from '../../contract/mock.json';
 import {
-  SEVERITY_RANK,
   type Activity,
   type Incident,
   type IncidentDetail,
@@ -11,6 +10,9 @@ import {
   type Status,
   type User
 } from './types';
+import { applyIncidentQuery } from '@/features/incidents/query';
+
+export { applyIncidentQuery } from '@/features/incidents/query';
 
 // Phones and simulators cannot reach the host machine's localhost; replace with this machine's LAN IP when USE_MOCK is false.
 export const API_BASE = 'http://172.20.1.228:4000/api';
@@ -58,40 +60,6 @@ function makeActivity(incidentId: string, type: Activity['type'], body: Partial<
   };
 }
 
-function sortIncidents(items: Incident[], query?: IncidentQuery): Incident[] {
-  const sort = query?.sort ?? 'severity';
-  const order = query?.order ?? 'desc';
-  const direction = order === 'asc' ? 1 : -1;
-
-  return [...items].sort((a, b) => {
-    const left = sort === 'severity' ? SEVERITY_RANK[a.severity] : sort === 'occurrences' ? a.occurrences : Date.parse(a.lastSeen);
-    const right = sort === 'severity' ? SEVERITY_RANK[b.severity] : sort === 'occurrences' ? b.occurrences : Date.parse(b.lastSeen);
-    return (left - right) * direction;
-  });
-}
-
-function filterIncidents(query?: IncidentQuery): Incident[] {
-  let items = [...mockIncidents];
-  const q = query?.q?.trim().toLowerCase();
-
-  if (q) {
-    items = items.filter((incident) =>
-      `${incident.title} ${incident.summary}`.toLowerCase().includes(q)
-    );
-  }
-  if (query?.severity?.length) {
-    items = items.filter((incident) => query.severity?.includes(incident.severity));
-  }
-  if (query?.status?.length) {
-    items = items.filter((incident) => query.status?.includes(incident.status));
-  }
-  if (query?.module) {
-    items = items.filter((incident) => incident.module === query.module);
-  }
-
-  return sortIncidents(items, query);
-}
-
 async function request<T>(path: string, init?: RequestInit, token?: string | null): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -133,7 +101,7 @@ export const apiClient = {
 
   async listIncidents(query?: IncidentQuery, token?: string | null): Promise<IncidentListResponse> {
     if (USE_MOCK) {
-      const items = filterIncidents(query);
+      const items = applyIncidentQuery(mockIncidents, query);
       return { items, total: items.length };
     }
 
