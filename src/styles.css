@@ -133,7 +133,13 @@ select {
 }
 
 .incident-row--accent td:first-child {
-  border-inline-start: 3px solid var(--severity-accent);
+  /* Mantine's Table sets an inline `border-color` on every td for grid lines,
+     which otherwise clobbers this accent color even though it never touches
+     the width. !important is the only reliable way to win against an inline
+     style we don't control. */
+  border-inline-start-width: 3px;
+  border-inline-start-style: solid;
+  border-inline-start-color: var(--severity-accent) !important;
 }
 
 .compact-card {
