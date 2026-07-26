@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Appbar, Button, Searchbar, SegmentedButtons, Text, useTheme } from 'react-native-paper';
+import { Appbar, Button, Searchbar, Text, useTheme } from 'react-native-paper';
 import { apiClient } from '@/api/client';
 import { SEVERITIES, STATUSES, type IncidentQuery, type Severity, type SortField, type Status } from '@/api/types';
 import { cacheIncidentList, readCachedIncidentList } from '@/storage/cache';
 import { useAuth } from '@/features/auth/AuthContext';
 import { BRAND, CANVAS, DENSITY, RADIUS } from '@/theme/tokens';
 import { IncidentCard } from './IncidentCard';
+import { FilterChipRow } from './FilterChipRow';
 import { startIncidentPolling } from '@/notify/poll';
 import { applyIncidentQuery } from './query';
 
@@ -72,7 +73,7 @@ export function DashboardScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: canvas.page }]}>
-      <Appbar.Header mode="small" elevated={false} style={[styles.appbar, { backgroundColor: canvas.surface, borderBottomColor: canvas.border }]}>
+      <Appbar.Header mode="small" elevated={false} style={[styles.appbar, { backgroundColor: canvas.page, borderBottomColor: canvas.border }]}>
         <View style={[styles.brandMark, { backgroundColor: BRAND.lime }]} />
         <Appbar.Content
           title="Active incidents"
@@ -104,32 +105,26 @@ export function DashboardScreen() {
           elevation={0}
         />
         <Text style={[styles.filterLabel, { color: canvas.textDim }]}>Severity</Text>
-        <SegmentedButtons
+        <FilterChipRow
           value={severity}
-          onValueChange={(value) => setSeverity(value as SeverityFilter)}
-          buttons={[{ value: 'All', label: 'All' }, ...SEVERITIES.map((item) => ({ value: item, label: item }))]}
-          density="small"
-          style={styles.segment}
+          onChange={(value) => setSeverity(value as SeverityFilter)}
+          options={[{ value: 'All', label: 'All' }, ...SEVERITIES.map((item) => ({ value: item, label: item }))]}
         />
         <Text style={[styles.filterLabel, { color: canvas.textDim }]}>Status</Text>
-        <SegmentedButtons
+        <FilterChipRow
           value={status}
-          onValueChange={(value) => setStatus(value as StatusFilter)}
-          buttons={[{ value: 'All', label: 'All' }, ...STATUSES.map((item) => ({ value: item, label: item }))]}
-          density="small"
-          style={styles.segment}
+          onChange={(value) => setStatus(value as StatusFilter)}
+          options={[{ value: 'All', label: 'All' }, ...STATUSES.map((item) => ({ value: item, label: item }))]}
         />
         <Text style={[styles.filterLabel, { color: canvas.textDim }]}>Sort</Text>
-        <SegmentedButtons
+        <FilterChipRow
           value={sort}
-          onValueChange={(value) => setSort(value as SortField)}
-          buttons={[
+          onChange={(value) => setSort(value as SortField)}
+          options={[
             { value: 'severity', label: 'Severity' },
             { value: 'lastSeen', label: 'Last seen' },
             { value: 'occurrences', label: 'Count' }
           ]}
-          density="small"
-          style={styles.segment}
         />
         <View style={styles.list}>
           {incidentsQuery.isPending ? (
@@ -227,7 +222,6 @@ const styles = StyleSheet.create({
   search: { borderRadius: RADIUS.control, borderWidth: 1, height: 42, marginTop: 10 },
   searchInput: { fontSize: DENSITY.fontSize, minHeight: 42 },
   filterLabel: { fontSize: 11, fontWeight: '600', marginBottom: 4, marginTop: 10, textTransform: 'uppercase' },
-  segment: { borderRadius: RADIUS.control },
   list: { marginTop: 12 },
   listState: { borderRadius: RADIUS.panel, borderWidth: 1, padding: 16 },
   listStateTitle: { fontSize: 16, fontWeight: '600' },

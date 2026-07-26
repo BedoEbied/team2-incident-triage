@@ -14,6 +14,7 @@
   "dependencies": {
     "@expo-google-fonts/instrument-sans": "^0.4.2",
     "@expo-google-fonts/instrument-serif": "^0.4.1",
+    "@expo/metro-runtime": "~57.0.7",
     "@expo/vector-icons": "^15.1.1",
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@tanstack/react-query": "^5.81.5",
@@ -25,10 +26,12 @@
     "expo-secure-store": "~57.0.1",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-native": "^0.86.0",
     "react-native-paper": "^5.14.5",
     "react-native-safe-area-context": "~5.7.0",
-    "react-native-screens": "^4.11.1"
+    "react-native-screens": "^4.11.1",
+    "react-native-web": "^0.21.2"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

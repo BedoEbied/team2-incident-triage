@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Appbar, Button, FAB, List, Snackbar, Text, TextInput, SegmentedButtons, useTheme } from 'react-native-paper';
+import { Appbar, Button, FAB, List, Snackbar, Text, TextInput, useTheme } from 'react-native-paper';
 import { apiClient } from '@/api/client';
 import type { Status } from '@/api/types';
 import { STATUSES } from '@/api/types';
@@ -10,6 +10,7 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { CANVAS, DENSITY, RADIUS } from '@/theme/tokens';
 import { FONT_MONO_NATIVE } from '@/theme/fonts';
 import { SeverityChip, StatusChip } from './chips';
+import { FilterChipRow } from './FilterChipRow';
 import { formatUtcDateTime } from './format';
 
 type IncidentDetailScreenProps = {
@@ -64,7 +65,7 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
 
   return (
     <View style={[styles.screen, { backgroundColor: canvas.page }]}>
-      <Appbar.Header mode="small" elevated={false} style={[styles.appbar, { backgroundColor: canvas.surface, borderBottomColor: canvas.border }]}>
+      <Appbar.Header mode="small" elevated={false} style={[styles.appbar, { backgroundColor: canvas.page, borderBottomColor: canvas.border }]}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content
           title="Incident detail"
@@ -134,16 +135,11 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
             </List.Section>
 
             <Text style={[styles.label, { color: canvas.textDim }]}>Status</Text>
-            <SegmentedButtons
+            <FilterChipRow
               value={incident.status}
-              onValueChange={(value) => patchMutation.mutate({ status: value as Status })}
-              buttons={STATUSES.map((item) => ({
-                value: item,
-                label: item,
-                disabled: patchMutation.isPending
-              }))}
-              density="small"
-              style={styles.segment}
+              onChange={(value) => patchMutation.mutate({ status: value })}
+              options={STATUSES.map((item) => ({ value: item, label: item }))}
+              disabled={patchMutation.isPending}
             />
             <View style={styles.actions}>
               <Button
@@ -300,7 +296,6 @@ const styles = StyleSheet.create({
   fieldTitle: { fontSize: 11, fontWeight: '600', textTransform: 'uppercase' },
   fieldBody: { fontSize: DENSITY.fontSize, lineHeight: 18 },
   label: { fontSize: 11, fontWeight: '600', marginBottom: 6, textTransform: 'uppercase' },
-  segment: { borderRadius: RADIUS.control, marginBottom: 10 },
   actions: { flexDirection: 'row', gap: 8, marginBottom: 10 },
   actionButton: { borderRadius: RADIUS.control, flex: 1 },
   note: { fontSize: DENSITY.fontSize, marginBottom: 8, minHeight: 72 },
