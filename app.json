@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Triage Mobile",
+    "slug": "team-2-triage-mobile",
+    "scheme": "triage",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-notifications"
+    ]
+  }
+}
