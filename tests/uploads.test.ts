@@ -108,6 +108,20 @@ test('upload endpoint enforces limits, stages atomically, and cleans temporary f
       error: { code: 'VALIDATION_ERROR', message: 'At most 5 files may be uploaded at once' },
     });
 
+    const tooManyPartsForm = formWithFiles(1);
+    for (let index = 0; index < 10; index += 1) {
+      tooManyPartsForm.append(`field-${index}`, 'value');
+    }
+    const tooManyParts = await fetch(`${base}/uploads`, {
+      method: 'POST',
+      headers: authorization,
+      body: tooManyPartsForm,
+    });
+    assert.equal(tooManyParts.status, 400);
+    assert.deepEqual(await tooManyParts.json(), {
+      error: { code: 'VALIDATION_ERROR', message: 'Multipart request contains too many parts' },
+    });
+
     const tooLarge = await fetch(`${base}/uploads`, {
       method: 'POST',
       headers: authorization,

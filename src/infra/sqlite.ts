@@ -110,7 +110,8 @@ export function createSqliteRepo(db: Db): IncidentRepo {
       const row = db.prepare(`${incidentSelect()} WHERE incident.id = ?`).get(id) as Row | undefined;
       if (!row) return null;
       const entries = db.prepare('SELECT id, incident_id as incidentId, timestamp, level, message, code, module, stack FROM log_entry WHERE incident_id = ? ORDER BY timestamp DESC LIMIT 100').all(id) as LogEntry[];
-      const history = db.prepare('SELECT id, incident_id as incidentId, at, actor, type, from_value as "from", to_value as "to", body FROM activity WHERE incident_id = ? ORDER BY at DESC').all(id) as Activity[];
+      const history = (db.prepare('SELECT id, incident_id as incidentId, at, actor, type, from_value as "from", to_value as "to", body FROM activity WHERE incident_id = ? ORDER BY at DESC').all(id) as ActivityRow[])
+        .map(toActivity);
       return { ...toIncident(row), entries, history };
     },
     async updateIncident(id, patch, actor) {
@@ -431,6 +432,26 @@ function toIncident(row: Row): Incident {
 
 function toUser(row: User & { passwordHash: string }): User {
   return { id: row.id, name: row.name, email: row.email };
+}
+
+type ActivityRow = Omit<Activity, 'from' | 'to' | 'body'> & {
+  from: string | null;
+  to: string | null;
+  body: string | null;
+};
+
+function toActivity(row: ActivityRow): Activity {
+  const activity: Activity = {
+    id: row.id,
+    incidentId: row.incidentId,
+    at: row.at,
+    actor: row.actor,
+    type: row.type,
+  };
+  if (row.from !== null) activity.from = row.from;
+  if (row.to !== null) activity.to = row.to;
+  if (row.body !== null) activity.body = row.body;
+  return activity;
 }
 
 function filterIncidents(items: Incident[], query: IncidentQuery): Incident[] {

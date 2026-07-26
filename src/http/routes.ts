@@ -34,7 +34,7 @@ export function registerRoutes(
       files: 5,
       fileSize: 10 * 1024 * 1024,
       parts: 10,
-      fields: 5,
+      fields: 10,
     },
   });
   const uploadFiles: RequestHandler = (req, res, next) => {
