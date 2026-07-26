@@ -3,7 +3,7 @@ import { Card, Text, useTheme } from 'react-native-paper';
 import type { Incident } from '@/api/types';
 import { CANVAS, DENSITY, RADIUS, SEVERITY_COLORS } from '@/theme/tokens';
 import { FONT_MONO_NATIVE } from '@/theme/fonts';
-import { formatDateTime } from './format';
+import { formatUtcDateTime } from './format';
 import { SeverityChip, StatusChip } from './chips';
 
 type IncidentCardProps = {
@@ -39,7 +39,7 @@ export function IncidentCard({ incident, onPress }: IncidentCardProps) {
             <SeverityChip severity={incident.severity} />
             <StatusChip status={incident.status} />
             <Text numberOfLines={1} style={[styles.timestamp, { color: canvas.textDim }]}>
-              {formatDateTime(incident.lastSeen)}
+              Last · {formatUtcDateTime(incident.lastSeen)}
             </Text>
           </View>
         </Card.Content>

@@ -3,6 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "ignoreDeprecations": "6.0",
+    "types": [
+      "node"
+    ],
     "baseUrl": ".",
     "paths": {
       "@/*": [

@@ -10,7 +10,7 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { CANVAS, DENSITY, RADIUS } from '@/theme/tokens';
 import { FONT_MONO_NATIVE } from '@/theme/fonts';
 import { SeverityChip, StatusChip } from './chips';
-import { formatFullDateTime } from './format';
+import { formatUtcDateTime } from './format';
 
 type IncidentDetailScreenProps = {
   id: string;
@@ -93,8 +93,8 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
               <Field title="Root cause" body={incident.rootCause} />
               <Field title="Suggested remediation" body={incident.remediation} />
               <Field title="Module" body={incident.module} mono />
-              <Field title="First seen" body={formatFullDateTime(incident.firstSeen)} mono />
-              <Field title="Last seen" body={formatFullDateTime(incident.lastSeen)} mono />
+              <Field title="First seen (UTC)" body={formatUtcDateTime(incident.firstSeen, { seconds: true })} mono />
+              <Field title="Last seen (UTC)" body={formatUtcDateTime(incident.lastSeen, { seconds: true })} mono />
             </List.Section>
 
             <Text style={[styles.label, { color: canvas.textDim }]}>Status</Text>
@@ -151,7 +151,9 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
               <Text style={[styles.label, { color: canvas.textDim }]}>Related log entries</Text>
               {incident.entries.map((entry) => (
                 <View key={entry.id} style={[styles.logBlock, { borderColor: canvas.border }]}>
-                  <Text style={[styles.mono, { color: canvas.textDim }]}>{formatFullDateTime(entry.timestamp)} {entry.level} {entry.code ?? ''}</Text>
+                  <Text style={[styles.mono, { color: canvas.textDim }]}>
+                    {formatUtcDateTime(entry.timestamp, { seconds: true })} {entry.level} {entry.code ?? ''}
+                  </Text>
                   <Text style={[styles.mono, { color: canvas.text }]}>{entry.message}</Text>
                   <Text style={[styles.monoDim, { color: canvas.textDim }]}>{entry.module}</Text>
                   {entry.stack ? <Text style={[styles.monoDim, { color: canvas.textDim }]}>{entry.stack}</Text> : null}
@@ -166,7 +168,9 @@ export function IncidentDetailScreen({ id }: IncidentDetailScreenProps) {
                   <Text style={[styles.historyTitle, { color: canvas.text }]}>
                     {activity.actor} · {activity.type}
                   </Text>
-                  <Text style={[styles.monoDim, { color: canvas.textDim }]}>{formatFullDateTime(activity.at)}</Text>
+                  <Text style={[styles.monoDim, { color: canvas.textDim }]}>
+                    {formatUtcDateTime(activity.at, { seconds: true })}
+                  </Text>
                   <Text style={[styles.historyBody, { color: canvas.textDim }]}>
                     {activity.body ?? [activity.from, activity.to].filter(Boolean).join(' → ')}
                   </Text>
