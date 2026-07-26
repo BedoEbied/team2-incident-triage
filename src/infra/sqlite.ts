@@ -82,7 +82,7 @@ export function createSqliteRepo(db: Db): IncidentRepo {
         for (const group of groups) {
           for (const item of group.entries) stageEntry(db, jobId, 0, item);
         }
-        commitStaged(db, jobId, analyzer);
+        await commitStaged(db, jobId, analyzer);
       } finally {
         clearStaging(db, jobId);
       }
@@ -94,7 +94,7 @@ export function createSqliteRepo(db: Db): IncidentRepo {
       stageEntry(db, jobId, fileIndex, entry);
     },
     async commitStaged(jobId, analyzer) {
-      return commitStaged(db, jobId, analyzer);
+      return await commitStaged(db, jobId, analyzer);
     },
     async clearStaging(jobId) {
       clearStaging(db, jobId);
@@ -240,8 +240,8 @@ function stageEntry(db: Db, jobId: string, fileIndex: number, entry: ParsedLogEn
   })();
 }
 
-function commitStaged(db: Db, jobId: string, analyzer: Analyzer): { parsed: number; grouped: number } {
-  const transaction = db.transaction(() => {
+async function commitStaged(db: Db, jobId: string, analyzer: Analyzer): Promise<{ parsed: number; grouped: number }> {
+  const prepared = db.transaction(() => {
     const files = db.prepare(`
       SELECT file_index as fileIndex, file_name as fileName, entry_count as entryCount
       FROM staging_file WHERE job_id = ? ORDER BY file_index
@@ -302,13 +302,13 @@ function commitStaged(db: Db, jobId: string, analyzer: Analyzer): { parsed: numb
       }
     }
 
-    for (const affectedFingerprint of Object.keys(affected)) {
-      recomputeIncident(db, affectedFingerprint, analyzer);
-    }
     clearStagingRows(db, jobId);
-    return { parsed, grouped: groupedRow.count };
-  });
-  return transaction();
+    return { parsed, grouped: groupedRow.count, fingerprints: Object.keys(affected) };
+  })();
+
+  const { mapPool } = await import('./analyzers/shared.js');
+  await mapPool(prepared.fingerprints, 4, (fingerprint) => recomputeIncident(db, fingerprint, analyzer));
+  return { parsed: prepared.parsed, grouped: prepared.grouped };
 }
 
 interface StagedRow {
@@ -322,7 +322,7 @@ interface StagedRow {
   normalizedMessage: string;
 }
 
-function recomputeIncident(db: Db, incidentFingerprint: string, analyzer: Analyzer): void {
+async function recomputeIncident(db: Db, incidentFingerprint: string, analyzer: Analyzer): Promise<void> {
   const totals = db.prepare(`
     SELECT COUNT(*) as occurrences, MIN(timestamp) as firstSeen, MAX(timestamp) as lastSeen
     FROM log_entry WHERE fingerprint = ?
@@ -353,6 +353,9 @@ function recomputeIncident(db: Db, incidentFingerprint: string, analyzer: Analyz
     WHERE fingerprint = ? AND code IS NOT NULL AND code <> ''
     GROUP BY code ORDER BY count DESC, code ASC LIMIT 1
   `).get(incidentFingerprint) as { code: string; count: number } | undefined;
+  const sampleStacks = db.prepare(
+    'SELECT stack FROM log_entry WHERE fingerprint = ? AND stack <> \'\' LIMIT 3',
+  ).all(incidentFingerprint) as { stack: string }[];
   const group: GroupedIncident = {
     fingerprint: incidentFingerprint,
     normalizedMessage: modal.normalizedMessage,
@@ -364,9 +367,17 @@ function recomputeIncident(db: Db, incidentFingerprint: string, analyzer: Analyz
     modules: modules.map(({ module }) => module),
     code: modalCode?.code ?? null,
     similarity: modal.count / totals.occurrences,
-    entries: [],
+    entries: sampleStacks.map((row) => ({
+      timestamp: totals.firstSeen!,
+      level: 'error',
+      message: modal.message,
+      code: modalCode?.code ?? null,
+      module: modalModule.module,
+      symbol: '',
+      stack: row.stack,
+    })),
   };
-  const analysis = analyzer.analyze(group);
+  const analysis = await analyzer.analyze(group);
   const existing = db.prepare(
     'SELECT id, status, acknowledged, assignee_id FROM incident WHERE fingerprint = ?',
   ).get(incidentFingerprint) as Row | undefined;

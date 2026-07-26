@@ -6,7 +6,7 @@ import { createIncidentsApp } from './app/incidents.js';
 import { createIngestApp } from './app/ingest.js';
 import { createListApp } from './app/list.js';
 import { createStatsApp } from './app/stats.js';
-import { createRuleAnalyzer } from './infra/rule-analyzer.js';
+import { createChainAnalyzer } from './infra/analyzers/index.js';
 import { createSqliteRepo } from './infra/sqlite.js';
 import { createWinstonParser } from './infra/winston-parser.js';
 
@@ -15,7 +15,8 @@ export function createContainer() {
   const db = new Database('data/triage.db');
   const repo = createSqliteRepo(db);
   const parser = createWinstonParser();
-  const analyzer = createRuleAnalyzer();
+  const analyzer = createChainAnalyzer();
+  console.log(analyzer.describe());
   const jwtSecret = resolveJwtSecret(process.env);
   return {
     repo,

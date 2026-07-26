@@ -57,8 +57,8 @@ test('analyzes connect and read ETIMEDOUT failures differently', async () => {
 
   assert.ok(connect);
   assert.ok(read);
-  const connectAnalysis = analyzer.analyze(connect);
-  const readAnalysis = analyzer.analyze(read);
+  const connectAnalysis = await analyzer.analyze(connect);
+  const readAnalysis = await analyzer.analyze(read);
   assert.notEqual(connectAnalysis.title, readAnalysis.title);
   assert.notEqual(connectAnalysis.rootCause, readAnalysis.rootCause);
   assert.notEqual(connectAnalysis.remediation, readAnalysis.remediation);

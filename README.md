@@ -52,6 +52,18 @@ Severity cannot be read from the logs — every entry is `level: 'error'` — so
 the analyzer from the normalized message, along with a title, summary, likely root cause,
 remediation and a confidence score.
 
+## AI analysis
+
+Incident analysis uses a Chain of Responsibility over three providers:
+
+1. **OpenAI** — when `OPENAI_API_KEY` is set (optional `OPENAI_MODEL`, default `gpt-5.6`)
+2. **`claude` CLI** — when the `claude` binary is on `PATH` (subscription-authed, no API key)
+3. **Rule engine** — always last; the chain never fails open
+
+Analysis runs **once per incident** (10 calls for the seeded corpus, not 893). Log text is treated
+as untrusted data inside a delimited `<LOG_DATA>` block. Without a key and without `claude`, boot
+behaves exactly as the deterministic rule engine.
+
 ## Contract
 
 `contract/` is frozen and shared by all three branches: `types.ts` (domain types), `api.md`

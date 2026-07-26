@@ -50,7 +50,7 @@ export interface LogParser {
 }
 
 export interface Analyzer {
-  analyze(group: GroupedIncident): Analysis;
+  analyze(group: GroupedIncident): Promise<Analysis>;
 }
 
 export interface IncidentRepo {
