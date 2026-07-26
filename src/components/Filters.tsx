@@ -28,7 +28,7 @@ export function Filters({
         placeholder="Title or summary"
         value={query.q ?? ''}
         onChange={(event) => update({ q: event.currentTarget.value })}
-        w={260}
+        className="filter-control filter-control--wide"
       />
       <MultiSelect
         label="Severity"
@@ -36,7 +36,7 @@ export function Filters({
         value={query.severity ?? []}
         onChange={(value) => update({ severity: value as Incident['severity'][] })}
         clearable
-        w={190}
+        className="filter-control"
       />
       <MultiSelect
         label="Status"
@@ -44,7 +44,7 @@ export function Filters({
         value={query.status ?? []}
         onChange={(value) => update({ status: value as Incident['status'][] })}
         clearable
-        w={210}
+        className="filter-control"
       />
       <Select
         label="Module"
@@ -53,7 +53,7 @@ export function Filters({
         onChange={(value) => update({ module: value ?? undefined })}
         clearable
         searchable
-        w={260}
+        className="filter-control filter-control--wide"
       />
       <DatePickerInput
         type="range"
@@ -68,7 +68,7 @@ export function Filters({
           });
         }}
         clearable
-        w={230}
+        className="filter-control filter-control--wide"
       />
       <Select
         label="Sort"
@@ -79,7 +79,7 @@ export function Filters({
         ]}
         value={query.sort ?? 'severity'}
         onChange={(value) => update({ sort: (value ?? 'severity') as SortField })}
-        w={150}
+        className="filter-control filter-control--narrow"
       />
     </Group>
   );

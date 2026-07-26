@@ -9,7 +9,6 @@ test('keeps incidents with duplicate titles distinct by id', () => {
       { id: 'connect-timeout', title: 'Connection timeouts', occurrences: 8 },
       { id: 'read-timeout', title: 'Connection timeouts', occurrences: 5 },
     ],
-    ['#111111', '#222222'],
   );
 
   assert.deepEqual(

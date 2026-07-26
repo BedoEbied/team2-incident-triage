@@ -141,7 +141,7 @@ export function DetailDrawer({
           <Stack gap={4}>
             <Text size="xs" c="dimmed">Affected modules</Text>
             {detail.modules.map((module) => (
-              <Text key={module} className="mono" size="xs">{module}</Text>
+              <Text key={module} className="mono break-anywhere" size="xs">{module}</Text>
             ))}
           </Stack>
 

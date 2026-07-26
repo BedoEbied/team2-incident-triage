@@ -78,7 +78,7 @@ export function UploadBar() {
         </Group>
       )}
       {(error || jobError) && (
-        <Box className="surface" mt={6} px="xs" py={6} role="alert">
+        <Box mt={6} px="xs" py={6} role="alert">
           <Text size="xs">{error ?? jobError}</Text>
         </Box>
       )}

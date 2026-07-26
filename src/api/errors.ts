@@ -71,5 +71,9 @@ export function getErrorMessage(error: unknown) {
     }
   }
 
+  if (error instanceof TypeError && error.message === 'Failed to fetch') {
+    return 'Could not reach the incident API. Check your connection and try again.';
+  }
+
   return error instanceof Error ? error.message : 'Unexpected error';
 }

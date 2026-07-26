@@ -18,9 +18,8 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
   const statusData = Object.entries(stats.byStatus).map(([status, count]) => ({
     status,
     count,
-    color: STATUS_COLORS[status as keyof typeof STATUS_COLORS][scheme],
   }));
-  const topData = buildTopIncidentChartData(stats.topIncidents, series);
+  const topData = buildTopIncidentChartData(stats.topIncidents);
   const topIncidentTitles = new Map(topData.map(({ id, title }) => [id, title]));
   const trendData = stats.trend.map((bucket) => ({
     ...bucket,
@@ -33,7 +32,7 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
         <Stack className="surface compact-card" gap={4} h="100%">
           <Text c="dimmed" size="xs" fw={650}>Total incidents</Text>
           <Title order={1} className="mono">{stats.total}</Title>
-          <Text c="dimmed" size="xs">893 grouped log entries</Text>
+          <Text c="dimmed" size="xs">Grouped from uploaded logs</Text>
         </Stack>
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 3 }}>

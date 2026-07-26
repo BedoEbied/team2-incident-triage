@@ -52,6 +52,14 @@ export function IncidentTable({
                       : undefined
                   }
                   onClick={() => onSelect(incident)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onSelect(incident);
+                    }
+                  }}
+                  tabIndex={0}
+                  aria-label={`Open incident: ${incident.title}`}
                 >
                   <Table.Td>
                     <Text fw={600} size="sm" lineClamp={1}>

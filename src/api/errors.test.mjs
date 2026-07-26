@@ -37,3 +37,10 @@ test('replaces internal errors with a recoverable message', () => {
     'The server could not complete the request. Try again.',
   );
 });
+
+test('explains network failures', () => {
+  assert.equal(
+    getErrorMessage(new TypeError('Failed to fetch')),
+    'Could not reach the incident API. Check your connection and try again.',
+  );
+});

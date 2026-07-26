@@ -42,6 +42,11 @@ select {
   cursor: pointer;
 }
 
+.incident-row:focus-visible {
+  outline: 2px solid var(--triage-text);
+  outline-offset: -2px;
+}
+
 .incident-row:hover {
   background: light-dark(#f1f3f5, #202124);
 }
@@ -51,20 +56,34 @@ select {
 }
 
 .incident-row--accent td:first-child {
-  border-left: 3px solid var(--severity-accent);
+  border-inline-start: 3px solid var(--severity-accent);
 }
 
 .compact-card {
   padding: 12px;
 }
 
-.chart-box {
-  height: 170px;
+.filter-control {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.filter-control--wide {
+  flex-basis: 240px;
+}
+
+.filter-control--narrow {
+  flex-basis: 140px;
 }
 
 .log-entry {
   min-width: 0;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.break-anywhere {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
