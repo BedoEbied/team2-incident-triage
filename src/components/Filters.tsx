@@ -69,6 +69,7 @@ export function Filters({
         }}
         clearable
         className="filter-control filter-control--wide"
+        styles={{ input: { fontFamily: 'var(--triage-mono)' } }}
       />
       <Select
         label="Sort"

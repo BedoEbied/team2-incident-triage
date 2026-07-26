@@ -1,7 +1,7 @@
 import { Grid, Group, Stack, Text, Title, useMantineColorScheme } from '@mantine/core';
 import { BarChart, DonutChart, LineChart } from '@mantine/charts';
 import type { Stats } from '../api/types';
-import { CHART_SERIES, STATUS_COLORS } from '../theme/tokens';
+import { CHART_SERIES, FONT_MONO, STATUS_COLORS } from '../theme/tokens';
 import { formatUtcDateLabel } from '../utils/date';
 import { buildTopIncidentChartData } from './analyticsData';
 
@@ -90,6 +90,9 @@ export function AnalyticsRow({ stats }: { stats: Stats }) {
             withLegend={false}
             tickLine="none"
             gridAxis="xy"
+            xAxisProps={{
+              tick: { fontFamily: FONT_MONO },
+            }}
           />
         </Stack>
       </Grid.Col>

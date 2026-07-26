@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import mock from '../../contract/mock.json' with { type: 'json' };
 import {
   buildIncidentQueryString,
   matchesIncidentQuery,
@@ -86,4 +87,19 @@ test('compares date filters against UTC date keys', () => {
     true,
   );
   assert.equal(matchesIncidentQuery(incidents[0], { from: '2026-05-17' }), false);
+});
+
+test('keeps the Location.Provider incident in the May 16 UTC filter result', () => {
+  const matches = mock.incidents.filter((incident) =>
+    matchesIncidentQuery(incident, {
+      q: 'Location.Provider',
+      severity: ['High'],
+      status: ['Investigating'],
+      module: 'src/tasks/order-retrial-task.ts',
+      from: '2026-05-16',
+      to: '2026-05-16',
+    }),
+  );
+
+  assert.deepEqual(matches.map(({ id }) => id), ['inc_5ea9e31d10ee']);
 });
