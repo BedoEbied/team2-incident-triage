@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { apiClient } from '@/api/client';
 import type { Incident } from '@/api/types';
 import { createPollController } from './pollController';
+import { incidentPath } from '@/navigation/links';
 
 const POLL_MS = 15000;
 let previousUrgentIds = new Set<string>();
@@ -32,7 +33,7 @@ export const expoNotificationPort: NotificationPort = {
       content: {
         title: `${incident.severity}: ${incident.title}`,
         body: incident.summary,
-        data: { url: `/incident/${incident.id}` }
+        data: { url: incidentPath(incident.id) }
       },
       trigger: null
     });

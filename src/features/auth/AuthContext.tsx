@@ -1,9 +1,10 @@
-import { createContext, useContext, useMemo, useState, type PropsWithChildren } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 import type { User } from '@/api/types';
 import { apiClient } from '@/api/client';
 import type { TokenStorage } from '@/storage/token';
 
 type AuthContextValue = {
+  isRestoring: boolean;
   token: string | null;
   user: User | null;
   login(email: string, password: string): Promise<void>;
@@ -13,16 +14,43 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 type AuthProviderProps = PropsWithChildren<{
-  initialToken: string | null;
   storage: TokenStorage;
 }>;
 
-export function AuthProvider({ children, initialToken, storage }: AuthProviderProps) {
-  const [token, setToken] = useState<string | null>(initialToken);
+export function AuthProvider({ children, storage }: AuthProviderProps) {
+  const [isRestoring, setIsRestoring] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    storage
+      .getToken()
+      .then((storedToken) => {
+        if (active) {
+          setToken(storedToken);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setToken(null);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setIsRestoring(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [storage]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
+      isRestoring,
       token,
       user,
       async login(email, password) {
@@ -37,7 +65,7 @@ export function AuthProvider({ children, initialToken, storage }: AuthProviderPr
         setUser(null);
       }
     }),
-    [storage, token, user]
+    [isRestoring, storage, token, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
