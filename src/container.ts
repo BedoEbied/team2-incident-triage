@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readdirSync, unlinkSync } from 'node:fs';
+import { join } from 'node:path';
 import { createAuthApp } from './app/auth.js';
 import { createIncidentsApp } from './app/incidents.js';
 import { createIngestApp } from './app/ingest.js';
@@ -10,7 +11,7 @@ import { createSqliteRepo } from './infra/sqlite.js';
 import { createWinstonParser } from './infra/winston-parser.js';
 
 export function createContainer() {
-  mkdirSync('data/uploads', { recursive: true });
+  prepareUploadDirectory('data/uploads');
   const db = new Database('data/triage.db');
   const repo = createSqliteRepo(db);
   const parser = createWinstonParser();
@@ -36,4 +37,11 @@ export function resolveJwtSecret(env: NodeJS.ProcessEnv): string {
     throw Reflect.construct(Error, ['JWT_SECRET is required in production']) as Error;
   }
   return 'dev-triage-secret';
+}
+
+export function prepareUploadDirectory(path: string): void {
+  mkdirSync(path, { recursive: true });
+  for (const entry of readdirSync(path, { withFileTypes: true })) {
+    if (entry.isFile()) unlinkSync(join(path, entry.name));
+  }
 }

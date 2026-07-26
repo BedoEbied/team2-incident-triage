@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
+import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import type { AddressInfo } from 'node:net';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
 import bcrypt from 'bcryptjs';
 import Database from 'better-sqlite3';
@@ -50,6 +53,23 @@ test('requires JWT_SECRET in production and uses the development fallback otherw
   assert.equal(resolveJwtSecret!({ NODE_ENV: 'test' }), 'dev-triage-secret');
   assert.equal(resolveJwtSecret!({ NODE_ENV: 'production', JWT_SECRET: 'production-secret' }), 'production-secret');
   assert.throws(() => resolveJwtSecret!({ NODE_ENV: 'production' }), /JWT_SECRET is required in production/);
+});
+
+test('removes orphaned generated upload files during startup preparation', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'triage-uploads-'));
+  try {
+    await writeFile(join(directory, 'generated-one'), 'one');
+    await writeFile(join(directory, 'generated-two'), 'two');
+    const prepareUploadDirectory = (containerModule as typeof containerModule & {
+      prepareUploadDirectory?: (path: string) => void;
+    }).prepareUploadDirectory;
+    assert.equal(typeof prepareUploadDirectory, 'function');
+
+    prepareUploadDirectory!(directory);
+    assert.deepEqual(await readdir(directory), []);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });
 
 test('compares unknown users against one fixed cost-10 dummy hash', async () => {
